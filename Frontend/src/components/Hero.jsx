@@ -1,6 +1,7 @@
 const Hero = () => {
   return (
-    <section className="w-full bg-linear-to-br from-emerald-100 via-sky-100 to-indigo-200 rounded-3xl p-10 relative overflow-hidden">
+    <section className="relative overflow-hidden bg-linear-to-br from-indigo-100 via-sky-100 to-emerald-100 rounded-3xl p-12 shadow-[0_30px_80px_-20px_rgba(79,70,229,0.35)] border border-white/40 backdrop-blur-xl"
+>
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-center">
         
         <div className="space-y-6">
@@ -26,7 +27,8 @@ const Hero = () => {
           </p>
 
           <div className="flex items-center gap-4">
-            <button className="px-7 py-3 rounded-xl bg-indigo-600 text-white font-medium shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-[1.02] transition-all duration-200"
+            <button className="px-7 py-3 rounded-xl bg-indigo-600 text-white font-medium shadow-lg shadow-indigo-500/40 hover:shadow-xl hover:shadow-indigo-500/60 hover:scale-[1.02] transition-all duration-200"
+
 >
               Get Started →
             </button>
@@ -50,7 +52,8 @@ const Hero = () => {
         </div>
 
         <div className="relative">
-          <div className="absolute -top-6 -right-6 bg-slate-900 text-white rounded-2xl p-5 w-64 shadow-xl">
+          <div className="absolute -top-6 -right-6 bg-slate-900 text-white rounded-2xl p-5 w-64 shadow-[0_30px_80px_-15px_rgba(15,23,42,0.45)]
+">
             <div className="flex items-center justify-between mb-3 text-xs text-slate-300">
               <span>AI Issue Insight</span>
               <span className="text-emerald-400">Live</span>

@@ -37,11 +37,11 @@ const Features = () => {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-6">
+        <div className="grid sm:grid-cols-2 gap-6 ">
           {items.map((item, idx) => (
             <div
               key={idx}
-              className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition"
+              className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:scale-[1.015] hover:shadow-lg transition-all duration-200"
             >
               <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-4">
                 {item.icon}

@@ -5,8 +5,8 @@ const Navbar = () => {
   const { isAuthenticated, user } = useAuthStore();
 
   return (
-    <nav className="w-full bg-white border-b border-slate-200 shadow-sm
-">
+    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 border-b border-slate-200/60 shadow-sm"
+>
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-indigo-600 text-white">
@@ -33,18 +33,18 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           {!isAuthenticated && (
             <>
-              <Link
-                to="/docs"
-                className="btn btn-outline btn-sm rounded-lg"
-              >
-                Docs
-              </Link>
-
+          
               <Link
                 to="/login"
-                className="btn btn-primary btn-sm rounded-lg px-5"
+               className="h-9 px-5 rounded-xl bg-indigo-600 text-white text-sm font-medium flex items-center justify-center shadow-md shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all"
               >
                 Login
+              </Link>
+              <Link
+                to="/signup"
+               className="h-9 px-5 rounded-xl bg-indigo-600 text-white text-sm font-medium flex items-center justify-center shadow-md shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all"
+              >
+                Signup
               </Link>
             </>
           )}
