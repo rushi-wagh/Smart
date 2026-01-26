@@ -22,13 +22,15 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["STUDENT","ADMIN"],
-      default: "STUDENT",
+      enum: ["student","admin"],
+      default: "student",
     },
 
     hostelId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Hostel",
+      type: String,
+    },
+    block:{
+        type: String
     },
 
     room:{

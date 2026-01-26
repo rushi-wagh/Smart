@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuthStore();
+  const { toast, showToast, hideToast } = useToast();
+
 
   const [form, setForm] = useState({
     email: "",
@@ -16,15 +20,22 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const res = await login(form);
+  const res = await login(form);
 
-    if (!res.success) return alert(res.message);
+  if (!res.success) {
+    showToast("error", res.message);
+    return;
+  }
 
-    if (res.role === "admin") navigate("/admin");
-    else navigate("/student");
-  };
+  showToast("success", "Login successful");
+
+  setTimeout(() => {
+  if (res.role === "admin") navigate("/");
+  else navigate("/");
+}, 500);
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-100 via-sky-100 to-emerald-100">
@@ -77,6 +88,8 @@ const Login = () => {
           </Link>
         </div>
       </div>
+      {toast && <Toast {...toast} onClose={hideToast} />}
+
     </div>
   );
 };

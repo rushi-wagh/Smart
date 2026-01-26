@@ -8,8 +8,13 @@ const issueSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      enum: ["ELECTRICITY", "PLUMBING", "CLEANING", "SECURITY", "OTHER"],
-      default: "OTHER",
+      enum: ["electricity", "plumbing", "cleaning", "security", "other"],
+      default: "other",
+    },
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      required: true,
     },
 
     aiCategory: String,

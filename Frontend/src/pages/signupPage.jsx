@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
+
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { register, loading } = useAuthStore();
+  const { signup, loading } = useAuthStore();
+  const { toast, showToast, hideToast } = useToast();
+
 
   const [form, setForm] = useState({
     name: "",
@@ -20,10 +25,16 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await register(form);
-    if (!res.success) return alert(res.message);
+    const res = await signup(form);
+    if (!res.success) {
+      showToast("error", res.message);
+      return;
+    }
+    showToast("success", "Account created successfully");
 
-    navigate("/login");
+    setTimeout(() => {
+      navigate('/login')
+    }, 500);
   };
 
   return (
@@ -94,6 +105,7 @@ const Signup = () => {
           </Link>
         </div>
       </div>
+       {toast && <Toast {...toast} onClose={hideToast} />}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import api from "../utils/api";
 
 export const useAuthStore = create(
   persist(
@@ -13,15 +14,7 @@ export const useAuthStore = create(
         try {
           set({ loading: true });
 
-          const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(credentials),
-          });
-
-          const data = await res.json();
-
-          if (!res.ok) throw new Error(data.message || "Login failed");
+          const { data } = await api.post("/api/v1/auth/login", credentials);
 
           set({
             user: data.user,
@@ -30,10 +23,31 @@ export const useAuthStore = create(
             loading: false,
           });
 
-          return { success: true };
+          return { success: true, role: data.user.role };
         } catch (error) {
           set({ loading: false });
-          return { success: false, message: error.message };
+          return {
+            success: false,
+            message: error?.response?.data?.message || "Login failed",
+          };
+        }
+      },
+
+      signup: async (payload) => {
+        try {
+          set({ loading: true });
+
+          const { data } = await api.post("/api/v1/auth/register", payload);
+
+          set({ loading: false });
+
+          return { success: true, message: data.message };
+        } catch (error) {
+          set({ loading: false });
+          return {
+            success: false,
+            message: error?.response?.data?.message || "Signup failed",
+          };
         }
       },
 
@@ -45,13 +59,43 @@ export const useAuthStore = create(
         });
       },
 
-      setUser: (user) => {
-        set({
-          user,
-          isAuthenticated: true,
-        });
+      getMe: async () => {
+        try {
+          set({ loading: true });
+
+          const { data } = await api.get("/api/v1/auth/me");
+
+          set({
+            user: data.user,
+            isAuthenticated: true,
+            loading: false,
+          });
+
+          return { success: true };
+        } catch (error) {
+          set({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            loading: false,
+          });
+
+          return {
+            success: false,
+            message:
+              error?.response?.data?.message ||
+              "Session expired. Please login again.",
+          };
+        }
       },
     }),
-    { name: "auth-storage" }
+    {
+      name: "auth-storage",
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
   )
 );
