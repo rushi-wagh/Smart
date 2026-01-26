@@ -32,6 +32,9 @@ const userSchema = new mongoose.Schema(
     block:{
         type: String
     },
+    hostel:{
+        type: String
+    },
 
     room:{
         type: Number

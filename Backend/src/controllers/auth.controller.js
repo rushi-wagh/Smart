@@ -5,7 +5,6 @@ import User from "../models/user.model.js";
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    console.log(req.body);  
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -23,16 +22,30 @@ export const registerUser = async (req, res) => {
       email,
       password: passwordHash,
       role: role || "STUDENT",
+      profileCompleted: false,
+    });
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(201).json({
-      message: "User registered successfully",
+      message: "Signup successful",
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        roomNumber: user.roomNumber,
+        profileCompleted: user.profileCompleted,
       },
     });
   } catch (err) {
@@ -40,6 +53,7 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 export const loginUser = async (req, res) => {
   try {
