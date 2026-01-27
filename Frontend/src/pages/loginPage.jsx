@@ -3,12 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import Toast from "../components/Toast";
 import useToast from "../hooks/useToast";
+import { useProfileStore } from "../store/useProfileStore";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuthStore();
   const { toast, showToast, hideToast } = useToast();
-
+  const { getProfile } = useProfileStore();
 
   const [form, setForm] = useState({
     email: "",
@@ -20,22 +21,30 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const res = await login(form);
+    const res = await login(form);
 
-  if (!res.success) {
-    showToast("error", res.message);
-    return;
-  }
+    if (!res.success) {
+      showToast("error", res.message);
+      return;
+    }
+    const profileRes = await getProfile();
+    console.log(profileRes);
 
-  showToast("success", "Login successful");
+    if (profileRes?.completion < 80) {
+      showToast("info", "Please complete your profile first");
+      setTimeout(() => navigate("/update-profile"), 500);
+      return;
+    }
 
-  setTimeout(() => {
-  if (res.role === "admin") navigate("/");
-  else navigate("/");
-}, 500);
-};
+    showToast("success", "Login successful");
+
+    setTimeout(() => {
+      if (res.role === "admin") navigate("/");
+      else navigate("/");
+    }, 500);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-100 via-sky-100 to-emerald-100">
@@ -47,9 +56,7 @@ const Login = () => {
           <h1 className="text-2xl font-semibold text-slate-900 mt-4">
             SmartHostel AI
           </h1>
-          <p className="text-slate-500 text-sm">
-            Sign in to your dashboard
-          </p>
+          <p className="text-slate-500 text-sm">Sign in to your dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -57,7 +64,7 @@ const Login = () => {
             type="email"
             name="email"
             placeholder=" Email"
-           className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500"
+            className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500"
             onChange={handleChange}
             required
           />
@@ -67,7 +74,6 @@ const Login = () => {
             name="password"
             placeholder="Password"
             className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500"
-
             onChange={handleChange}
             required
           />
@@ -89,7 +95,6 @@ const Login = () => {
         </div>
       </div>
       {toast && <Toast {...toast} onClose={hideToast} />}
-
     </div>
   );
 };

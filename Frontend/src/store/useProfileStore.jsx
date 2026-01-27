@@ -18,7 +18,7 @@ export const useProfileStore = create((set) => ({
         loading: false,
       });
 
-      return { success: true };
+      return { success: true,completion: data.data.percentage };
     } catch (error) {
       set({ loading: false });
       return {

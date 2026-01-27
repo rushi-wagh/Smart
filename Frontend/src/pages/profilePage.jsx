@@ -77,12 +77,12 @@ const Profile = () => {
           </p>
 
           <div className="mt-6 bg-white rounded-xl p-4 flex items-center gap-4 shadow-sm">
-            <div
+            {/* <div
               className="radial-progress text-indigo-600"
               style={{ "--value": completion || 0 }}
             >
               {completion || 0}%
-            </div>
+            </div> */}
             <div>
               <p className="font-semibold">Profile Completion</p>
               <p className="text-sm text-slate-500">

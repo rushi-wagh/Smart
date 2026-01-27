@@ -34,11 +34,11 @@ const Navbar = () => {
     <>
       <nav className="w-full sticky top-0 z-50 backdrop-blur-xl bg-white/60 border-b border-white/40">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center">
             <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-md shadow-indigo-500/40">
               AI
             </div>
-            <span className="font-semibold text-lg text-slate-900">
+            <span className="font-semibold text-lg text-slate-900 ml-3">
               SmartHostel AI
             </span>
           </Link>
@@ -46,12 +46,19 @@ const Navbar = () => {
           {!isAuthenticated ? (
             <Link
               to="/login"
-              className="btn btn-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/40"
+              className="px-4 py-1.5 rounded-xl text-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all"
             >
               Login
             </Link>
           ) : (
             <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate("/lost-found")}
+                className="px-4 py-1.5 rounded-xl text-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all"
+              >
+                Lost & Found
+              </button>
+
               <button
                 onClick={() =>
                   navigate(user?.role === "admin" ? "/admin" : "/student")
