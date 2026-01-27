@@ -10,12 +10,12 @@ const announcementSchema = new mongoose.Schema({
     },
     hostel:{
         type: String,
-        enum:["Hostel A", "Hostel B", "Hostel C", "Hostel D", "All"],
+        enum:["Sunrise Hall", "Green View Hostel","Blue Moon Residency", "All"],
         required:true,
     },
     block:{
         type:String,
-        enum:["Block 1", "Block 2", "Block 3", "Block 4", "All"],
+        enum:["A","B","C","All"],
         required:true,
     },
     date:{

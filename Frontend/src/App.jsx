@@ -8,6 +8,8 @@ import LostFoundDashboard from './pages/lostAndFoundPage'
 import ReportItem from './pages/reportItemPage'
 import LostFoundItemDetail from './pages/lostFoundItemDetail'
 import AdminModerationPanel from './pages/lost-foundAdminPage'
+import AdminAnnouncementDashboard from './pages/announcementAdminPage'
+import Announcements from './pages/announcementPage'
 
 const App = () => {
   return(
@@ -22,6 +24,8 @@ const App = () => {
       <Route path="/lost-found/report" element={<ReportItem />} />
       <Route path ="/lost-found/detail" element={<LostFoundItemDetail />} />
       <Route path="/lost-found/admin" element={<AdminModerationPanel />} /> 
+      <Route path='/announcements-admin' element={<AdminAnnouncementDashboard />} />
+      <Route path='/announcements' element={<Announcements />} />  
 
     </Routes>
     </>
