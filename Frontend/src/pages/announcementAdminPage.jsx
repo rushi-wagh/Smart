@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/NavBar";
 import Footer from "../components/Footer";
 import Toast from "../components/Toast";
@@ -128,7 +128,11 @@ const AdminAnnouncementDashboard = () => {
               {loading ? "Publishing..." : "Publish Announcement"}
             </button>
           </form>
+          <div className="h-16 display-flex justify-center items-center mt-6">
+          <Link to="/announcements" className="text-indigo-600 hover:underline text-right">Back to View Announcements</Link>
         </div>
+        </div>
+        
       </div>
 
       {toast && <Toast {...toast} onClose={hideToast} />}

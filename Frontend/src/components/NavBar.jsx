@@ -59,6 +59,16 @@ const Navbar = () => {
                 Lost & Found
               </button>
 
+              {/* Announcement links */}
+              <button
+                onClick={() =>
+                  navigate(user?.role === "admin" ? "/announcements-admin" : "/announcements")
+                }
+                className="px-4 py-1.5 rounded-xl text-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all"
+              >
+                {user?.role === "admin" ? "Announcement Dashboard" : "Announcements"}
+              </button>
+
               <button
                 onClick={() =>
                   navigate(user?.role === "admin" ? "/admin" : "/student")

@@ -4,6 +4,7 @@ import User from "../models/user.model.js"
 export const isLoggedIn = async (req, res, next) => {
   try {
     const token = req.cookies?.token;
+    console.log("Auth Middleware Token")
 
     if (!token) {
       return res.status(401).json({ message: "Not authorized, token missing" });

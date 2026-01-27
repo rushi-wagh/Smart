@@ -26,6 +26,9 @@ const issueSchema = new mongoose.Schema(
       enum: ["OPEN", "IN_PROGRESS", "RESOLVED"],
       default: "OPEN",
     },
+    image:{
+      type:String
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -33,15 +36,15 @@ const issueSchema = new mongoose.Schema(
       required: true,
     },
 
-    hostelId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Hostel",
-      required: true,
+    hostel: {
+      type: String,
+    },
+    block: {
+      type:String,
     },
 
     roomNumber: {
       type: String,  
-      required: true,
     },
 
     assignedTo: {
@@ -52,6 +55,6 @@ const issueSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const issue = mongoose.model("Issue", issueSchema);
+const Issue = mongoose.model("Issue", issueSchema);
 
-export default issue
+export default Issue
