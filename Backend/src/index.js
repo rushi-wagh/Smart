@@ -10,6 +10,7 @@ import userRoutes from "./routes/user.routes.js";
 import lostFoundRoutes from "./routes/lost-found.routes.js";
 import announcementRoutes from "./routes/announcement.routes.js";
 import issueRoutes from "./routes/issue.routes.js";
+import aiRoutes from "./routes/ai.routes.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/lost-found", lostFoundRoutes);
 app.use("/api/v1/announcement", announcementRoutes);
 app.use("/api/v1/issue", issueRoutes);
+app.use("/api/v1/ai", aiRoutes);
 
 
 connectDb();

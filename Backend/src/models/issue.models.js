@@ -2,59 +2,133 @@ import mongoose from "mongoose";
 
 const issueSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    description: { type: String, required: true },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
     category: {
       type: String,
-      enum: ["electricity", "plumbing", "cleaning", "security", "other"],
+      enum: ["electricity", "plumbing", "cleaning", "security", "internet", "other"],
       default: "other",
     },
+
     priority: {
       type: String,
-      enum: ["low", "medium", "high"],
+      enum: ["LOW", "MEDIUM", "HIGH", "EMERGENCY"],
       required: true,
+      index: true,
+    },
+
+    userPriority: {
+      type: String,
+      enum: ["LOW", "MEDIUM", "HIGH", "EMERGENCY"],
+    },
+
+    aiPriority: {
+      type: String,
+      enum: ["LOW", "MEDIUM", "HIGH", "EMERGENCY"],
     },
 
     aiCategory: String,
-    aiPriority: String,
-    aiConfidence: Number,
+
+    aiUrgency: {
+      type: Number,
+      min: 1,
+      max: 10,
+    },
+
+    aiTags: [String],
+
+    sentiment: {
+      type: String,
+      enum: ["POSITIVE", "NEUTRAL", "NEGATIVE"],
+      default: "NEUTRAL",
+    },
+
+    emergency: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    emergencyType: {
+      type: String,
+      enum: [
+        "fire",
+        "gas",
+        "water_leak",
+        "electric_short",
+        "medical",
+        "security_threat",
+        "other",
+      ],
+    },
 
     status: {
       type: String,
-      enum: ["OPEN", "IN_PROGRESS", "RESOLVED"],
+      enum: ["OPEN", "IN_PROGRESS", "RESOLVED", "ESCALATED"],
       default: "OPEN",
+      index: true,
     },
-    image:{
-      type:String
+
+    image: {
+      type: String,
+    },
+
+    hostel: {
+      type: String,
+      index: true,
+    },
+
+    block: {
+      type: String,
+      index: true,
+    },
+
+    roomNumber: {
+      type: String,
     },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-
-    hostel: {
-      type: String,
-    },
-    block: {
-      type:String,
-    },
-
-    roomNumber: {
-      type: String,  
+      index: true,
     },
 
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+
+    escalationLevel: {
+      type: Number,
+      default: 0,
+    },
+
+    resolvedAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
 
+issueSchema.index({
+  hostel: 1,
+  block: 1,
+  priority: -1,
+  emergency: -1,
+  createdAt: -1,
+});
+
 const Issue = mongoose.model("Issue", issueSchema);
 
-export default Issue
+export default Issue;
