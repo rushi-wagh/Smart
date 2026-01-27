@@ -6,6 +6,8 @@ import Profile from './pages/profilePage'
 import ProfileView from './pages/profileView'
 import LostFoundDashboard from './pages/lostAndFoundPage'
 import ReportItem from './pages/reportItemPage'
+import LostFoundItemDetail from './pages/lostFoundItemDetail'
+import AdminModerationPanel from './pages/lost-foundAdminPage'
 
 const App = () => {
   return(
@@ -18,6 +20,8 @@ const App = () => {
       <Route path="/profile" element={<ProfileView />} />
       <Route path="/lost-found" element={<LostFoundDashboard />} />
       <Route path="/lost-found/report" element={<ReportItem />} />
+      <Route path ="/lost-found/detail" element={<LostFoundItemDetail />} />
+      <Route path="/lost-found/admin" element={<AdminModerationPanel />} /> 
 
     </Routes>
     </>

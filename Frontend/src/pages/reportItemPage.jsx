@@ -1,25 +1,22 @@
 import { useState } from "react";
 import Navbar from "../components/NavBar";
 import Footer from "../components/Footer";
-
-const hostelOptions = {
-  "Sunrise Hall": ["A", "B", "C"],
-  "Green View Hostel": ["A", "B"],
-  "Blue Moon Residency": ["A", "B", "C", "D"],
-};
+import { useLostFoundStore } from "../store/useLostandFoundStore";
+import { useNavigate } from "react-router-dom";
+import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 const ReportItem = () => {
-  const [type, setType] = useState("found");
+  const navigate = useNavigate();
+  const { createLostItem, createFoundItem, loading } = useLostFoundStore();
+  const { toast, showToast, hideToast } = useToast();
 
+  const [type, setType] = useState("found");
   const [form, setForm] = useState({
-    itemName: "",
-    category: "",
+    title: "",
     date: "",
     description: "",
     location: "",
-    hostel: "",
-    block: "",
-    deposit: "",
     images: [],
   });
 
@@ -27,186 +24,155 @@ const ReportItem = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleImageUpload = (e) => {
-    setForm({ ...form, images: [...e.target.files] });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ ...form, type });
+
+    const payload = new FormData();
+    Object.entries(form).forEach(([k, v]) => {
+      if (k === "images") v.forEach((f) => payload.append("images", f));
+      else payload.append(k, v);
+    });
+
+    const res =
+      type === "lost"
+        ? await createLostItem(payload)
+        : await createFoundItem(payload);
+
+    if (res.success) {
+      showToast("success", res.message || "Item reported successfully");
+      setTimeout(() => navigate("/lost-found"), 800);
+    } else {
+      showToast("error", res.message || "Something went wrong");
+    }
   };
 
   return (
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-linear-to-br from-indigo-100 via-sky-100 to-emerald-100 flex justify-center px-4 py-8">
-        <div className="w-full max-w-md bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-[0_20px_50px_-15px_rgba(79,70,229,0.18)] border border-white/40">
-
-          <h1 className="text-2xl font-semibold text-slate-900 text-center">
+      <div
+        className="min-h-screen bg-linear-to-br from-indigo-50 via-sky-50 to-emerald-50 flex justify-center px-4 py-14 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.35)]
+"
+      >
+        <div className="w-full max-w-xl bg-white/70 backdrop-blur-xl rounded-3xl p-8 shadow-[0_20px_50px_-15px_rgba(79,70,229,0.25)] border border-white/50">
+          <h1 className="text-2xl font-semibold text-center text-slate-900">
             Report Item
           </h1>
           <p className="text-sm text-slate-500 text-center mt-1">
-            Help us keep track of lost and found items.
+            Help others recover their belongings
           </p>
 
-          {/* Toggle */}
-          <div className="mt-5 bg-slate-100 p-1 rounded-xl flex">
+          <div className="mt-6 bg-slate-100/80 p-1.5 rounded-xl flex">
             <button
+              type="button"
               onClick={() => setType("lost")}
-              className={`flex-1 py-2 rounded-lg font-medium transition 
-              ${type === "lost" ? "bg-white shadow text-indigo-600" : "text-slate-500"}`}
+              className={`flex-1 py-2 rounded-lg font-medium transition
+                ${
+                  type === "lost"
+                    ? "bg-white shadow text-indigo-600"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
             >
               Lost Item
             </button>
 
             <button
+              type="button"
               onClick={() => setType("found")}
-              className={`flex-1 py-2 rounded-lg font-medium transition 
-              ${type === "found" ? "bg-slate-900 text-white shadow" : "text-slate-500"}`}
+              className={`flex-1 py-2 rounded-lg font-medium transition
+                ${
+                  type === "found"
+                    ? "bg-slate-900 text-white shadow"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
             >
-              ✓ Found Item
+              Found Item
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+          <form onSubmit={handleSubmit} className="mt-10 space-y-6">
+            <div>
+              <label className="text-sm font-medium text-slate-700">
+                Item Name
+              </label>
+              <input
+                name="title"
+                placeholder="e.g. Black Wallet, iPhone 12, Keys..."
+                onChange={handleChange}
+                className="w-full h-11 px-4 py-3 rounded-xl bg-white/70 backdrop-blur border border-slate-200/70 shadow-sm shadow-indigo-100/40 focus-outline-none transition"
+                required
+              />
+            </div>
 
-            {/* Item Details */}
-            <section>
-              <p className="text-xs font-semibold tracking-widest text-slate-500 mb-2">
-                ITEM DETAILS
-              </p>
+            <div>
+              <label className="text-sm font-medium text-slate-700">
+                Location
+              </label>
+              <input
+                name="location"
+                placeholder={`Where did you ${type === "lost" ? "lose" : "find"} it?`}
+                onChange={handleChange}
+                className="w-full h-11 px-4 py-3 rounded-xl bg-white/70 backdrop-blur border border-slate-200/70 shadow-sm shadow-indigo-100/40 focus-outline-none transition"
+                required
+              />
+            </div>
 
-              <div className="space-y-4">
-                <input
-                  name="itemName"
-                  placeholder="Item Name"
-                  className="input input-bordered w-full h-11 rounded-xl bg-white/80"
-                  onChange={handleChange}
-                />
+            <div>
+              <label className="text-sm font-medium text-slate-700">Date</label>
+              <input
+                type="date"
+                name="date"
+                onChange={handleChange}
+                className="w-full h-11 px-4 py-3 rounded-xl bg-white/70 backdrop-blur border border-slate-200/70 shadow-sm shadow-indigo-100/40 focus-outline-none transition"
+                required
+              />
+            </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <select
-                    name="category"
-                    onChange={handleChange}
-                    className="select select-bordered h-11 rounded-xl bg-white/80"
-                  >
-                    <option value="">Category</option>
-                    <option>Electronics</option>
-                    <option>Keys</option>
-                    <option>Personal</option>
-                    <option>Stationery</option>
-                  </select>
+            <div>
+              <label className="text-sm font-medium text-slate-700">
+                Description
+              </label>
+              <textarea
+                name="description"
+                placeholder="Color, brand, unique marks, stickers, scratches..."
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-4 py-3 rounded-xl bg-white/70 backdrop-blur border border-slate-200/70 shadow-sm shadow-indigo-100/40 focus:outline-none  transition resize-none"
+                required
+              />
+            </div>
 
-                  <input
-                    type="date"
-                    name="date"
-                    onChange={handleChange}
-                    className="input input-bordered h-11 rounded-xl bg-white/80"
-                  />
-                </div>
-
-                <textarea
-                  name="description"
-                  placeholder="Describe the item (color, brand, distinguishing marks)..."
-                  rows={3}
-                  className="textarea textarea-bordered w-full rounded-xl bg-white/80"
-                  onChange={handleChange}
-                />
-              </div>
-            </section>
-
-            {/* Location Info */}
-            <section>
-              <p className="text-xs font-semibold tracking-widest text-slate-500 mb-2">
-                LOCATION INFO
-              </p>
-
-              <div className="space-y-4">
-                <input
-                  name="location"
-                  placeholder={`Where did you ${type === "lost" ? "lose" : "find"} it?`}
-                  className="input input-bordered w-full h-11 rounded-xl bg-white/80"
-                  onChange={handleChange}
-                />
-
-                <div className="grid grid-cols-2 gap-3">
-                  <select
-                    name="hostel"
-                    value={form.hostel}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        hostel: e.target.value,
-                        block: "",
-                      })
-                    }
-                    className="select select-bordered h-11 rounded-xl bg-white/80"
-                  >
-                    <option value="">Hostel</option>
-                    {Object.keys(hostelOptions).map((h) => (
-                      <option key={h}>{h}</option>
-                    ))}
-                  </select>
-
-                  <select
-                    name="block"
-                    value={form.block}
-                    disabled={!form.hostel}
-                    onChange={handleChange}
-                    className="select select-bordered h-11 rounded-xl bg-white/80 disabled:bg-slate-100"
-                  >
-                    <option value="">Block</option>
-                    {hostelOptions[form.hostel]?.map((b) => (
-                      <option key={b}>{b}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {type === "found" && (
-                  <select
-                    name="deposit"
-                    onChange={handleChange}
-                    className="select select-bordered w-full h-11 rounded-xl bg-white/80"
-                  >
-                    <option value="">Where is the item deposited?</option>
-                    <option>Security Guard Desk</option>
-                    <option>Warden Office</option>
-                    <option>Reception</option>
-                  </select>
-                )}
-              </div>
-            </section>
-
-            {/* Photos */}
-            <section>
-              <p className="text-xs font-semibold tracking-widest text-slate-500 mb-2">
-                PHOTOS
-              </p>
-
-              <label className="border-2 border-dashed rounded-xl h-36 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-indigo-400 transition">
+            <div>
+              <label className="text-sm font-medium text-slate-700">
+                Upload Images
+              </label>
+              <label className="mt-2 border-2 border-dashed rounded-2xl h-36 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-indigo-400 hover:text-indigo-500 transition bg-white/40">
                 <input
                   type="file"
                   multiple
                   className="hidden"
-                  onChange={handleImageUpload}
+                  onChange={(e) =>
+                    setForm({ ...form, images: [...e.target.files] })
+                  }
                 />
-                <div className="text-3xl">☁️</div>
-                <p className="text-sm">Tap to upload photos</p>
-                <p className="text-xs">JPG or PNG, max 5MB</p>
+                <div className="text-3xl">📸</div>
+                <p className="text-sm font-medium">Click to upload images</p>
+                <p className="text-xs">PNG, JPG — max 5MB</p>
               </label>
-            </section>
+            </div>
 
             <button
+              disabled={loading}
               type="submit"
-              className="btn w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/40"
+              className="btn w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/40 transition"
             >
-              Submit Report
+              {loading ? "Submitting..." : "Submit Report"}
             </button>
-
           </form>
         </div>
       </div>
+
+      {toast && <Toast {...toast} onClose={hideToast} />}
 
       <Footer />
     </>
