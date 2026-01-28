@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, department } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -21,7 +21,8 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password: passwordHash,
-      role: role || "STUDENT",
+      role: role || "student",
+      department: department || "general",
       profileCompleted: false,
     });
 
@@ -45,6 +46,7 @@ export const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        department: user.department,
         profileCompleted: user.profileCompleted,
       },
     });

@@ -39,3 +39,21 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const getStaffByDepartment = async (req, res) =>{
+       try {
+        const {department} = req.query
+        let filter = {}
+        if(department){
+          filter.department = department
+        }
+        const staff = await User.find({role: "staff", ...filter}).select("-password");
+        if(!staff || staff.length === 0){
+          return res.status(404).json({ success: false, message: "No staff found"});
+        }
+        res.status(200).json({ success: true, data: staff });
+       } catch (error) {
+        console.log("Error fetching staff by department:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+       }
+}

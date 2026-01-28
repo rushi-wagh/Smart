@@ -22,26 +22,39 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["student","admin"],
+      enum: ["student", "admin", "staff"],
       default: "student",
+    },
+    department: {
+      type: String,
+      enum: [
+        "plumbing",
+        "electrical",
+        "cleaning",
+        "internet",
+        "carpentry",
+        "mess",
+        "general",
+      ],
+      default: "general",
     },
 
     hostelId: {
       type: String,
     },
-    block:{
-        type: String
+    block: {
+      type: String,
     },
-    hostel:{
-        type: String
+    hostel: {
+      type: String,
     },
 
-    room:{
-        type: Number
-    }
+    room: {
+      type: Number,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
- const User = mongoose.model("User", userSchema);
- export default User;
+const User = mongoose.model("User", userSchema);
+export default User;
