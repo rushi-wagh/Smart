@@ -1,5 +1,5 @@
 import Issue from "../models/issue.models.js";
-
+import { uploadImage } from "../utils/cloudinary.js";
 
 export const postIssue = async (req, res) => {
   try {

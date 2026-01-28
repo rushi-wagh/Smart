@@ -2,7 +2,8 @@ import { create } from "zustand";
 import api from "../utils/api";
 
 export const useIssueStore = create((set, get) => ({
-  issues: [],
+  myIssues: [],
+  allIssues: [],
   loading: false,
   suggestedCategory: null,
 
@@ -13,6 +14,7 @@ export const useIssueStore = create((set, get) => ({
       const { data } = await api.post("/api/v1/ai/category-detect", {
         description,
       });
+
       set({ suggestedCategory: data.suggestedCategory });
     } catch {}
   },
@@ -21,12 +23,14 @@ export const useIssueStore = create((set, get) => ({
     try {
       set({ loading: true });
 
-      const { data } = await api.post("/api/v1/issue/create", payload, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await api.post(
+        "/api/v1/issue/create",
+        payload,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
       set((state) => ({
-        issues: [data.issue, ...state.issues],
+        myIssues: [data.issue, ...state.myIssues],
         loading: false,
       }));
 
@@ -35,39 +39,63 @@ export const useIssueStore = create((set, get) => ({
       set({ loading: false });
       return {
         success: false,
-        message: error?.response?.data?.message || "Failed to submit issue",
+        message:
+          error?.response?.data?.message || "Failed to submit issue",
       };
     }
   },
 
   fetchMyIssues: async () => {
     try {
+      set({ loading: true });
+
       const { data } = await api.get("/api/v1/issue/my-issues");
-      set({ issues: data.issues });
-    } catch {}
+
+      set({
+        myIssues: data.issues || [],
+        loading: false,
+      });
+    } catch {
+      set({ loading: false });
+    }
   },
 
   fetchAllIssues: async (filters = {}) => {
     try {
-      const { data } = await api.get("/api/v1/issue/all-issues", {
-        params: filters,
+      set({ loading: true });
+
+      const { data } = await api.get(
+        "/api/v1/issue/all-issues",
+        { params: filters }
+      );
+
+      set({
+        allIssues: data.issues || [],
+        loading: false,
       });
-      set({ issues: data.issues });
-    } catch {}
+    } catch {
+      set({ loading: false });
+    }
   },
 
   updateStatus: async (id, status) => {
     try {
-      await api.patch(`/api/v1/issue/update-status/${id}`, { status });
+      await api.patch(
+        `/api/v1/issue/update-status/${id}`,
+        { status }
+      );
       get().fetchAllIssues();
+      get().fetchMyIssues();
     } catch {}
   },
 
   deleteIssue: async (id) => {
     try {
       await api.delete(`/api/v1/issue/delete/${id}`);
+
       set((state) => ({
-        issues: state.issues.filter((i) => i._id !== id),
+        myIssues: state.myIssues.filter((i) => i._id !== id),
+        allIssues: state.allIssues.filter((i) => i._id !== id),
       }));
     } catch {}
   },
