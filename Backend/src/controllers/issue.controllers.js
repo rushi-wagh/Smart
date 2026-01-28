@@ -3,7 +3,7 @@ import Issue from "../models/issue.models.js";
 
 export const postIssue = async (req, res) => {
   try {
-    const { title, description, category, priority } = req.body;
+    const { title, description, category, priority, issueType } = req.body;
 
     if (!title || !description || !priority || !req.user) {
       return res.status(400).json({ message: "All fields are required" });
@@ -23,6 +23,7 @@ export const postIssue = async (req, res) => {
       description,
       category,
       priority,
+      issueType,
       hostel: user.hostel,
       block: user.block,
       roomNumber: user.roomNumber || req.body.roomNumber,
@@ -81,7 +82,18 @@ export const updateIssueStatus = async(req,res) => {
 
 export const getAllIssues = async(req,res) => {
     try {
-        const issues = await Issue.find().sort({createdAt: -1}).populate("createdBy", "name email")
+        let filter = {}
+        const{issueType,hostel,block} = req.query
+        if(issueType){
+            filter.issueType = issueType
+        }
+        if(hostel){
+            filter.hostel = hostel
+        }
+        if(block){
+            filter.block = block
+        }
+        const issues = await Issue.find(filter).sort({createdAt: -1}).populate("createdBy", "name email")
         if(!issues){
             return res.status(404).json({message: "No issues found"});
         }

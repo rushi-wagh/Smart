@@ -7,6 +7,11 @@ const issueSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    issueType:{
+      type: String,
+      enum: ["Public","Private"],
+      default: "Public",
+    },
 
     description: {
       type: String,
@@ -16,13 +21,13 @@ const issueSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      enum: ["electricity", "plumbing", "cleaning", "security", "internet","mess", "other"],
-      default: "other",
+      enum: ["Electricity", "Plumbing", "Cleaning", "Security", "Internet","Mess", "Other"],
+      default: "Other",
     },
 
     priority: {
       type: String,
-      enum: ["LOW", "MEDIUM", "HIGH", "EMERGENCY"],
+      enum: ["Low", "Medium", "High", "Emergency"],
       required: true,
       index: true,
     },
@@ -34,7 +39,7 @@ const issueSchema = new mongoose.Schema(
 
     aiPriority: {
       type: String,
-      enum: ["LOW", "MEDIUM", "HIGH", "EMERGENCY"],
+      enum: ["Low", "Medium", "High", "Emergency"],
     },
 
     aiCategory: String,
