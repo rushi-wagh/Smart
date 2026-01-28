@@ -1,0 +1,146 @@
+import { useEffect, useState } from "react";
+import Navbar from "../components/NavBar";
+import Footer from "../components/Footer";
+import { useIssueStore } from "../store/useIssueStore";
+
+const statusColor = {
+  OPEN: "bg-indigo-100 text-indigo-600",
+  IN_PROGRESS: "bg-amber-100 text-amber-600",
+  RESOLVED: "bg-emerald-100 text-emerald-600",
+  ESCALATED: "bg-red-100 text-red-600",
+};
+
+const AdminIssues = () => {
+  const { fetchAllIssues, updateStatus, allIssues = [], loading } =
+    useIssueStore();
+
+  const [filters, setFilters] = useState({
+    hostel: "",
+    block: "",
+    issueType: "",
+  });
+
+  useEffect(() => {
+    fetchAllIssues(filters);
+  }, [filters]);
+
+  return (
+    <>
+      <Navbar />
+
+      <div className="min-h-screen bg-linear-to-br from-indigo-50 via-sky-50 to-emerald-50 px-4 py-10">
+        <div className="max-w-6xl mx-auto">
+
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">
+            Admin Issue Dashboard
+          </h1>
+
+          <p className="text-sm text-slate-500 mb-6">
+            Monitor, filter and manage hostel issues
+          </p>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            <input
+              placeholder="Filter by Hostel"
+              className="h-11 px-4 rounded-xl border border-slate-200 bg-white shadow-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+              onChange={(e) =>
+                setFilters({ ...filters, hostel: e.target.value })
+              }
+            />
+
+            <input
+              placeholder="Filter by Block"
+              className="h-11 px-4 rounded-xl border border-slate-200 bg-white shadow-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+              onChange={(e) =>
+                setFilters({ ...filters, block: e.target.value })
+              }
+            />
+
+            <select
+              className="h-11 px-4 rounded-xl border border-slate-200 bg-white shadow-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+              onChange={(e) =>
+                setFilters({ ...filters, issueType: e.target.value })
+              }
+            >
+              <option value="">All Issue Types</option>
+              <option value="Public">Public</option>
+              <option value="Private">Private</option>
+            </select>
+          </div>
+
+          {loading && (
+            <div className="text-center py-24 text-slate-500">
+              Loading issues...
+            </div>
+          )}
+
+          {!loading && allIssues.length === 0 && (
+            <div className="text-center py-24 text-slate-500">
+              No issues found
+            </div>
+          )}
+
+          <div className="space-y-4">
+            {allIssues.map((i) => (
+              <div
+                key={i._id}
+                className="bg-white/70 backdrop-blur-xl p-5 rounded-2xl shadow-md border border-white/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
+                <div>
+                  <h3 className="font-semibold text-slate-800">
+                    {i.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-500 mt-1">
+                    {i.hostel} • Block {i.block} • Room {i.roomNumber}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mt-3 text-xs">
+                    <span className={`px-3 py-1 rounded-full font-medium ${statusColor[i.status]}`}>
+                      {i.status}
+                    </span>
+
+                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">
+                      {i.category}
+                    </span>
+
+                    <span
+                      className={`px-3 py-1 rounded-full font-medium 
+                        ${i.issueType === "Public"
+                          ? "bg-emerald-100 text-emerald-600"
+                          : "bg-amber-100 text-amber-600"}`}
+                    >
+                      {i.issueType}
+                    </span>
+
+                    {i.emergency && (
+                      <span className="px-3 py-1 rounded-full bg-red-600 text-white">
+                        🚨 Emergency
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <select
+                  value={i.status}
+                  onChange={(e) => updateStatus(i._id, e.target.value)}
+                  className="h-11 px-4 rounded-xl border border-slate-200 bg-white shadow-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                >
+                  <option value="OPEN">OPEN</option>
+                  <option value="IN_PROGRESS">IN_PROGRESS</option>
+                  <option value="RESOLVED">RESOLVED</option>
+                  <option value="ESCALATED">ESCALATED</option>
+                </select>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+
+      <Footer />
+    </>
+  );
+};
+
+export default AdminIssues;

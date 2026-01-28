@@ -4,18 +4,17 @@ import { useAuthStore } from "../store/useAuthStore";
 import Toast from "../components/Toast";
 import useToast from "../hooks/useToast";
 
-
 const Signup = () => {
   const navigate = useNavigate();
   const { signup, loading } = useAuthStore();
   const { toast, showToast, hideToast } = useToast();
-
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     role: "student",
+    department: "",
   });
 
   const handleChange = (e) => {
@@ -25,15 +24,26 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (form.role === "staff" && !form.department) {
+      showToast("error", "Please select department");
+      return;
+    }
+
     const res = await signup(form);
+    console.log(res.user)
     if (!res.success) {
       showToast("error", res.message);
       return;
     }
+
     showToast("success", "Account created successfully");
 
     setTimeout(() => {
-      navigate('/login')
+      if (form.role === "student") {
+        navigate("/update-profile");
+      } else {
+        navigate("/login");
+      }
     }, 500);
   };
 
@@ -57,7 +67,7 @@ const Signup = () => {
             type="text"
             name="name"
             placeholder="Full Name"
-            className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500"
+            className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200"
             onChange={handleChange}
             required
           />
@@ -66,7 +76,7 @@ const Signup = () => {
             type="email"
             name="email"
             placeholder="Email"
-            className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500"
+            className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200"
             onChange={handleChange}
             required
           />
@@ -75,23 +85,44 @@ const Signup = () => {
             type="password"
             name="password"
             placeholder="Password"
-            className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500"
+            className="input input-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200"
             onChange={handleChange}
             required
           />
 
           <select
             name="role"
-            className="select select-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500"
+            value={form.role}
+            className="select select-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200"
             onChange={handleChange}
           >
             <option value="student">Student</option>
+            <option value="staff">Staff</option>
             <option value="admin">Admin</option>
           </select>
 
+          {form.role === "staff" && (
+            <select
+              name="department"
+              value={form.department}
+              className="select select-bordered w-full h-11 pl-4 rounded-xl bg-white/80 border-slate-200"
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Department</option>
+              <option value="plumbing">Plumbing</option>
+              <option value="electrical">Electrical</option>
+              <option value="cleaning">Cleaning</option>
+              <option value="internet">Internet</option>
+              <option value="carpentry">Carpentry</option>
+              <option value="mess">Mess</option>
+              <option value="general">General</option>
+            </select>
+          )}
+
           <button
             type="submit"
-            className="btn w-full h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/40 hover:shadow-indigo-500/60 transition-all"
+            className="btn w-full h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/40"
             disabled={loading}
           >
             {loading ? "Creating..." : "Create Account →"}
@@ -105,7 +136,8 @@ const Signup = () => {
           </Link>
         </div>
       </div>
-       {toast && <Toast {...toast} onClose={hideToast} />}
+
+      {toast && <Toast {...toast} onClose={hideToast} />}
     </div>
   );
 };

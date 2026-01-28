@@ -12,6 +12,7 @@ import AdminAnnouncementDashboard from './pages/announcementAdminPage'
 import Announcements from './pages/announcementPage'
 import ReportIssue from './pages/issueReportPage'
 import MyIssues from './pages/myIssuePage'
+import AdminIssues from './pages/adminIssuePage'
 
 const App = () => {
   return(
@@ -30,6 +31,7 @@ const App = () => {
       <Route path='/announcements' element={<Announcements />} />  
       <Route path ='/issue' element ={<ReportIssue />} />
       <Route path ='/my-issues' element ={<MyIssues />} />
+      <Route path="/admin-issues" element={<AdminIssues />} />
 
     </Routes>
     </>
