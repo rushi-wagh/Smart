@@ -1,169 +1,124 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import api from "../utils/api";
 
-export const useLostFoundStore = create(
-  persist(
-    (set, get) => ({
-      items: [],
-      loading: false,
+export const useLostFoundStore = create((set, get) => ({
+  items: [],
+  currentItem: null,
+  loading: false,
+  claimLoading: false,
 
-      fetchItems: async (filters = {}) => {
-        try {
-          set({ loading: true });
+  createLostItem: async (payload) => {
+    try {
+      set({ loading: true });
 
-          const { data } = await api.get("/api/v1/lost-found", {
-            params: filters,
-          });
+      const { data } = await api.post("/api/v1/lost-found/lost", payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-          set({ items: data.data, loading: false });
+      set((state) => ({
+        items: [data.data, ...state.items],
+        loading: false,
+      }));
 
-          return { success: true };
-        } catch (error) {
-          set({ loading: false });
-          return {
-            success: false,
-            message: error?.response?.data?.message || "Failed to load items",
-          };
-        }
-      },
+      return { success: true, message: data.message };
+    } catch (error) {
+      set({ loading: false });
+      return {
+        success: false,
+        message: error?.response?.data?.message || "Failed to report lost item",
+      };
+    }
+  },
 
-      createLostItem: async (payload) => {
-        try {
-          set({ loading: true });
+  createFoundItem: async (payload) => {
+    try {
+      set({ loading: true });
 
-          const { data } = await api.post("/api/v1/lost-found/lost", payload);
+      const { data } = await api.post("/api/v1/lost-found/found", payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-          set((state) => ({
-            items: [data.data, ...state.items],
-            loading: false,
-          }));
+      set((state) => ({
+        items: [data.data, ...state.items],
+        loading: false,
+      }));
 
-          return { success: true, message: data.message };
-        } catch (error) {
-          set({ loading: false });
-          return {
-            success: false,
-            message:
-              error?.response?.data?.message || "Failed to report lost item",
-          };
-        }
-      },
+      return { success: true, message: data.message };
+    } catch (error) {
+      set({ loading: false });
+      return {
+        success: false,
+        message: error?.response?.data?.message || "Failed to report found item",
+      };
+    }
+  },
 
-      createFoundItem: async (payload) => {
-        try {
-          set({ loading: true });
+  fetchItems: async () => {
+    try {
+      set({ loading: true });
+      const { data } = await api.get("/api/v1/lost-found");
+      set({ items: data.items || data.data || [], loading: false });
+    } catch (error) {
+      set({ loading: false });
+    }
+  },
 
-          const { data } = await api.post("/api/v1/lost-found/found", payload);
+  fetchItemById: async (id) => {
+    try {
+      set({ loading: true });
+      const { data } = await api.get(`/api/v1/lost-found/${id}`);
+      set({ currentItem: data.item || data.data, loading: false });
+    } catch (error) {
+      set({ loading: false, currentItem: null });
+    }
+  },
 
-          set((state) => ({
-            items: [data.data, ...state.items],
-            loading: false,
-          }));
+  claimItem: async (id, payload) => {
+    try {
+      set({ claimLoading: true });
 
-          return { success: true, message: data.message };
-        } catch (error) {
-          set({ loading: false });
-          return {
-            success: false,
-            message:
-              error?.response?.data?.message || "Failed to post found item",
-          };
-        }
-      },
+      const { data } = await api.post(
+        `/api/v1/lost-found/claim/${id}`,
+        payload,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-      claimItem: async (id, payload) => {
-        try {
-          set({ loading: true });
+      set({ claimLoading: false });
+      return { success: true, message: data.message };
+    } catch (error) {
+      set({ claimLoading: false });
+      return {
+        success: false,
+        message: error?.response?.data?.message || "Claim failed",
+      };
+    }
+  },
 
-          const { data } = await api.post(
-            `/api/v1/lost-found/claim/${id}`,
-            payload,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            },
-          );
+  approveClaim: async (id) => {
+    try {
+      const { data } = await api.post(`/api/v1/lost-found/claim/approve/${id}`);
+      get().fetchItems();
+      return { success: true, message: data.message };
+    } catch (error) {
+      return {
+        success: false,
+        message: error?.response?.data?.message || "Approval failed",
+      };
+    }
+  },
 
-          set({ loading: false });
+  rejectClaim: async (id) => {
+    try {
+      const { data } = await api.post(`/api/v1/lost-found/claim/reject/${id}`);
+      get().fetchItems();
+      return { success: true, message: data.message };
+    } catch (error) {
+      return {
+        success: false,
+        message: error?.response?.data?.message || "Rejection failed",
+      };
+    }
+  },
 
-          return { success: true, message: data.message };
-        } catch (error) {
-          set({ loading: false });
-          return {
-            success: false,
-            message: error?.response?.data?.message || "Claim failed",
-          };
-        }
-      },
-
-      approveClaim: async (id) => {
-        try {
-          set({ loading: true });
-
-          const { data } = await api.post(
-            `/api/v1/lost-found/claim/approve/${id}`,
-          );
-
-          set((state) => ({
-            items: state.items.map((i) => (i._id === id ? data.data : i)),
-            loading: false,
-          }));
-
-          return { success: true, message: data.message };
-        } catch (error) {
-          set({ loading: false });
-          return {
-            success: false,
-            message: error?.response?.data?.message || "Approval failed",
-          };
-        }
-      },
-      getItemById: async (id) => {
-        try {
-          set({ loading: true });
-
-          const { data } = await api.get(`/api/v1/lost-found/${id}`);
-
-          set({ loading: false });
-
-          return { success: true, data: data.data };
-        } catch (error) {
-          set({ loading: false });
-          return {
-            success: false,
-            message: error?.response?.data?.message || "Failed to load item",
-          };
-        }
-      },
-
-      rejectClaim: async (id) => {
-        try {
-          set({ loading: true });
-
-          const { data } = await api.post(
-            `/api/v1/lost-found/claim/reject/${id}`,
-          );
-
-          set((state) => ({
-            items: state.items.map((i) => (i._id === id ? data.data : i)),
-            loading: false,
-          }));
-
-          return { success: true, message: data.message };
-        } catch (error) {
-          set({ loading: false });
-          return {
-            success: false,
-            message: error?.response?.data?.message || "Reject failed",
-          };
-        }
-      },
-    }),
-    {
-      name: "lost-found-store",
-      partialize: (state) => ({ items: state.items }),
-    },
-  ),
-);
+  clearCurrentItem: () => set({ currentItem: null }),
+}));

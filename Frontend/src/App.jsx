@@ -49,7 +49,7 @@ const App = () => {
         </ProtectedRoute>
       } />
 
-      <Route path="/lost-found/detail" element={
+      <Route path="/lost-found/:id" element={
         <ProtectedRoute>
           <LostFoundItemDetail />
         </ProtectedRoute>

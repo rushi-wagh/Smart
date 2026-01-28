@@ -71,7 +71,7 @@ const Navbar = () => {
 
               <button
                 onClick={() =>
-                  navigate(user?.role === "admin" ? "/admin" : "/student")
+                  navigate(user?.role === "admin" ? "/admin-issues" : user?.role ==="staff" ? "/staff-dashboard" : "/student-dashboard")
                 }
                 className="px-4 py-1.5 rounded-xl text-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all"
               >

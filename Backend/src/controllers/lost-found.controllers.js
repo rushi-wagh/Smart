@@ -108,8 +108,8 @@ export const getLostFoundItems = async (req, res) => {
 };
 export const claimItem = async (req, res) => {
   try {
-    const { proof } = req.body;
-
+    const proofResp = await uploadImage(req.file.path);
+    const proof = proofResp.secure_url;
     const item = await LostFound.findById(req.params.id);
 
     if (!item) {

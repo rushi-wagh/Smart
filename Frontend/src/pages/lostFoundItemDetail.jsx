@@ -1,131 +1,166 @@
-import { useState } from "react";
-import { ArrowLeft, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/NavBar";
 import Footer from "../components/Footer";
-
-const demoItem = {
-  _id: "1",
-  title: "Sony WH-1000XM4",
-  description:
-    "Black Sony noise cancelling headphones found near library table. Looks new. No scratches.",
-  category: "Electronics",
-  location: "Library, L2",
-  status: "AVAILABLE",
-  type: "FOUND",
-  images: [
-    "https://images.unsplash.com/photo-1585386959984-a41552231692?q=80&w=1200",
-    "https://images.unsplash.com/photo-1518445697889-9bd1d8c3aa43?q=80&w=1200",
-  ],
-};
+import { useLostFoundStore } from "../store/useLostandFoundStore";
+import Toast from "../components/Toast";
+import useToast from "../hooks/useToast";
 
 const LostFoundItemDetail = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [item] = useState(demoItem);
-  const [showClaim, setShowClaim] = useState(false);
-  const [proof, setProof] = useState("");
-  const [files, setFiles] = useState([]);
+  const { fetchItemById, currentItem, loading, claimItem } =
+    useLostFoundStore();
+
+  const { toast, showToast, hideToast } = useToast();
+
+  const [proof, setProof] = useState(null);
+
+  useEffect(() => {
+    if (id) fetchItemById(id);
+  }, [id]);
+
+  const handleClaim = async () => {
+    if (!proof) {
+      showToast("error", "Please upload proof first");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("proof", proof);
+
+    const res = await claimItem(id, formData);
+
+    if (res?.success) {
+      showToast("success", "Claim submitted successfully");
+      setTimeout(() => navigate(-1), 1200);
+    } else {
+      showToast("error", res?.message || "Claim failed");
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center text-slate-500">
+          Loading item...
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!currentItem) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center text-slate-500">
+          Item not found
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-slate-50 pb-24">
-        <div className="relative">
-          <img
-            src="https://sony.scene7.com/is/image/sonyglobalsolutions/TVFY24_UP_10_Beauty_H_M?$productIntroPlatemobile$&fmt=png-alpha"
-            className="h-80 mx-auto object-cover"
-          />
+      <div className="min-h-screen bg-slate-50 px-4 py-10">
+        <div className="max-w-5xl mx-auto">
 
           <button
             onClick={() => navigate(-1)}
-            className="absolute top-4 left-4 w-10 h-10 rounded-full bg-black/40 flex items-center justify-center text-white"
+            className="mb-6 text-indigo-600 hover:underline"
           >
-            <ArrowLeft size={20} />
+            ← Back
           </button>
-        </div>
 
-        <div className="px-5 pt-5">
-          <span className="inline-flex text-xs px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 font-semibold">
-            FOUND ITEM
-          </span>
+          <div className="bg-white rounded-3xl shadow-xl p-6 grid md:grid-cols-2 gap-8">
 
-          <h1 className="text-xl font-semibold mt-2">{item.title}</h1>
-
-          <div className="grid grid-cols-2 gap-3 mt-5">
-            <div className="bg-white rounded-xl p-3 shadow-sm border">
-              <p className="text-xs text-slate-500">Category</p>
-              <p className="font-medium text-sm">{item.category}</p>
-            </div>
-
-            <div className="bg-white rounded-xl p-3 shadow-sm border">
-              <p className="text-xs text-slate-500">Location</p>
-              <p className="font-medium text-sm">{item.location}</p>
-            </div>
-          </div>
-
-          <p className="mt-4 text-sm text-slate-600">
-            {item.description}
-          </p>
-
-          <button
-            onClick={() => setShowClaim(true)}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-12 rounded-xl bg-indigo-600 text-white font-medium shadow-xl shadow-indigo-500/40"
-          >
-            Claim Item
-          </button>
-        </div>
-
-        {showClaim && (
-          <>
-            <div
-              onClick={() => setShowClaim(false)}
-              className="fixed inset-0 bg-black/40 z-40"
+            <img
+              src={currentItem.images?.[0] || "/placeholder.jpg"}
+              alt={currentItem.title}
+              className="w-full h-96 object-cover rounded-2xl"
             />
 
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl p-6 animate-slideUp">
-              <div className="flex justify-between">
-                <h2 className="text-lg font-semibold">Claim Item</h2>
-                <button onClick={() => setShowClaim(false)}>
-                  <X />
-                </button>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-800">
+                {currentItem.title}
+              </h1>
+
+              <p className="text-slate-500 mt-3">
+                {currentItem.description}
+              </p>
+
+              <div className="flex flex-wrap gap-2 mt-4 text-sm">
+                <Badge>{currentItem.category}</Badge>
+                <Badge>{currentItem.location}</Badge>
+                <StatusBadge status={currentItem.status} />
               </div>
 
-              <div className="mt-4 space-y-4">
-                <textarea
-                  value={proof}
-                  onChange={(e) => setProof(e.target.value)}
-                  rows={3}
-                  placeholder="Describe unique features (scratches, stickers, etc)"
-                  className="textarea textarea-bordered w-full rounded-xl"
-                />
+              {currentItem.status === "AVAILABLE" && (
+                <div className="mt-8 space-y-4">
 
-                <label className="border-2 border-dashed rounded-xl h-28 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-indigo-400 transition">
-                  <input
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => setFiles([...e.target.files])}
-                  />
-                  <div className="text-2xl">📸</div>
-                  <p className="text-sm">Tap to upload photo</p>
-                </label>
+                  <label className="block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer hover:border-indigo-400 transition">
+                    <input
+                      type="file"
+                      hidden
+                      onChange={(e) => setProof(e.target.files[0])}
+                    />
+                    📄 Upload ownership proof
+                  </label>
 
-                <button
-                  className="btn w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/40"
-                >
-                  Submit Claim Request
-                </button>
-              </div>
+                  <button
+                    onClick={handleClaim}
+                    className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg transition"
+                  >
+                    Claim Item
+                  </button>
+
+                </div>
+              )}
+
+              {currentItem.status !== "AVAILABLE" && (
+                <div className="mt-6 text-sm text-slate-500">
+                  This item is already {currentItem.status.toLowerCase()}.
+                </div>
+              )}
             </div>
-          </>
-        )}
+
+          </div>
+
+        </div>
       </div>
 
       <Footer />
+
+      {toast && <Toast {...toast} onClose={hideToast} />}
     </>
   );
 };
 
 export default LostFoundItemDetail;
 
+const Badge = ({ children }) => (
+  <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs">
+    {children}
+  </span>
+);
+
+const StatusBadge = ({ status }) => {
+  const colors = {
+    AVAILABLE: "bg-emerald-100 text-emerald-600",
+    CLAIMED: "bg-amber-100 text-amber-600",
+    RETURNED: "bg-rose-100 text-rose-600",
+  };
+
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-semibold ${colors[status]}`}
+    >
+      {status}
+    </span>
+  );
+};
