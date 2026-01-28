@@ -3,8 +3,7 @@ import Issue from "../models/issue.models.js";
 
 export const getCountOfIssues = async(req,res) => {
     try {
-        // return total issues plus filtered count by category,hostel,status
-
+       
         let filter = {};
         const { category, hostel, status } = req.query;     
         if (category) {

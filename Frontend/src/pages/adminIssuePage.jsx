@@ -24,20 +24,30 @@ const AdminIssues = () => {
     fetchAllIssues(filters);
   }, [filters]);
 
+  const total = allIssues.length;
+  const open = allIssues.filter(i => i.status === "OPEN").length;
+  const resolved = allIssues.filter(i => i.status === "RESOLVED").length;
+
   return (
     <>
       <Navbar />
 
       <div className="min-h-screen bg-linear-to-br from-indigo-50 via-sky-50 to-emerald-50 px-4 py-10">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
 
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">
-            Admin Issue Dashboard
+          <h1 className="text-3xl font-bold text-slate-800 mb-1">
+            Admin Dashboard
           </h1>
 
           <p className="text-sm text-slate-500 mb-6">
-            Monitor, filter and manage hostel issues
+            Live hostel complaint analytics & management
           </p>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+            <StatCard title="Total Issues" value={total} color="indigo" />
+            <StatCard title="Open Issues" value={open} color="amber" />
+            <StatCard title="Resolved Issues" value={resolved} color="emerald" />
+          </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <input
@@ -144,3 +154,12 @@ const AdminIssues = () => {
 };
 
 export default AdminIssues;
+
+const StatCard = ({ title, value, color }) => (
+  <div className="rounded-2xl p-5 bg-white/70 backdrop-blur-xl border border-white/40 shadow-md">
+    <p className="text-xs text-slate-500">{title}</p>
+    <h2 className={`text-2xl font-bold text-${color}-600`}>
+      {value}
+    </h2>
+  </div>
+);

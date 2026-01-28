@@ -13,6 +13,7 @@ import Announcements from './pages/announcementPage'
 import ReportIssue from './pages/issueReportPage'
 import MyIssues from './pages/myIssuePage'
 import AdminIssues from './pages/adminIssuePage'
+import StaffDashboard from './pages/staffPage'
 
 const App = () => {
   return(
@@ -32,6 +33,7 @@ const App = () => {
       <Route path ='/issue' element ={<ReportIssue />} />
       <Route path ='/my-issues' element ={<MyIssues />} />
       <Route path="/admin-issues" element={<AdminIssues />} />
+      <Route path="/staff-dashboard" element={<StaffDashboard />} />
 
     </Routes>
     </>

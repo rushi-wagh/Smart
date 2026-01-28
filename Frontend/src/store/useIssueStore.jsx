@@ -4,8 +4,10 @@ import api from "../utils/api";
 export const useIssueStore = create((set, get) => ({
   myIssues: [],
   allIssues: [],
+  staffTasks: [],
   loading: false,
   suggestedCategory: null,
+  adminStats: null,
 
   detectCategory: async (description) => {
     if (!description || description.length < 8) return;
@@ -14,7 +16,6 @@ export const useIssueStore = create((set, get) => ({
       const { data } = await api.post("/api/v1/ai/category-detect", {
         description,
       });
-
       set({ suggestedCategory: data.suggestedCategory });
     } catch {}
   },
@@ -23,11 +24,9 @@ export const useIssueStore = create((set, get) => ({
     try {
       set({ loading: true });
 
-      const { data } = await api.post(
-        "/api/v1/issue/create",
-        payload,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const { data } = await api.post("/api/v1/issue/create", payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       set((state) => ({
         myIssues: [data.issue, ...state.myIssues],
@@ -39,8 +38,7 @@ export const useIssueStore = create((set, get) => ({
       set({ loading: false });
       return {
         success: false,
-        message:
-          error?.response?.data?.message || "Failed to submit issue",
+        message: error?.response?.data?.message || "Failed to submit issue",
       };
     }
   },
@@ -48,13 +46,8 @@ export const useIssueStore = create((set, get) => ({
   fetchMyIssues: async () => {
     try {
       set({ loading: true });
-
       const { data } = await api.get("/api/v1/issue/my-issues");
-
-      set({
-        myIssues: data.issues || [],
-        loading: false,
-      });
+      set({ myIssues: data.issues || [], loading: false });
     } catch {
       set({ loading: false });
     }
@@ -63,16 +56,10 @@ export const useIssueStore = create((set, get) => ({
   fetchAllIssues: async (filters = {}) => {
     try {
       set({ loading: true });
-
-      const { data } = await api.get(
-        "/api/v1/issue/all-issues",
-        { params: filters }
-      );
-
-      set({
-        allIssues: data.issues || [],
-        loading: false,
+      const { data } = await api.get("/api/v1/issue/all-issues", {
+        params: filters,
       });
+      set({ allIssues: data.issues || [], loading: false });
     } catch {
       set({ loading: false });
     }
@@ -80,10 +67,7 @@ export const useIssueStore = create((set, get) => ({
 
   updateStatus: async (id, status) => {
     try {
-      await api.patch(
-        `/api/v1/issue/update-status/${id}`,
-        { status }
-      );
+      await api.patch(`/api/v1/issue/update-status/${id}`, { status });
       get().fetchAllIssues();
       get().fetchMyIssues();
     } catch {}
@@ -92,11 +76,35 @@ export const useIssueStore = create((set, get) => ({
   deleteIssue: async (id) => {
     try {
       await api.delete(`/api/v1/issue/delete/${id}`);
-
       set((state) => ({
         myIssues: state.myIssues.filter((i) => i._id !== id),
         allIssues: state.allIssues.filter((i) => i._id !== id),
       }));
+    } catch {}
+  },
+
+  fetchStaffTasks: async () => {
+    try {
+      set({ loading: true });
+      const { data } = await api.get("/api/v1/staff/tasks");
+      set({ staffTasks: data.tasks || [], loading: false });
+    } catch {
+      set({ loading: false });
+    }
+  },
+
+  staffUpdateStatus: async (id, status) => {
+    try {
+      await api.patch(`/api/v1/staff/tasks/${id}/status`, { status });
+      get().fetchStaffTasks();
+    } catch {}
+  },
+  fetchAdminStats: async (filters = {}) => {
+    try {
+      const { data } = await api.get("/api/v1/admin/count", {
+        params: filters,
+      });
+      set({ adminStats: data });
     } catch {}
   },
 }));
