@@ -30,7 +30,7 @@ const Login = () => {
       return;
     }
     const profileRes = await getProfile();
-    console.log(profileRes);
+    
 
     if (profileRes?.completion < 80) {
       showToast("info", "Please complete your profile first");
