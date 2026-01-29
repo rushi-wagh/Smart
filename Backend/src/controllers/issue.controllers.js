@@ -142,3 +142,21 @@ export const deleteIssue = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
+export const getIssueByCategoryCount = async (req, res) => {
+  try {
+    const { category } = req.params;  
+    if (!category) {  
+      return res.status(400).json({ message: "Category is required" });
+    } 
+    const issues = await Issue.find({ category: category }).sort({ createdAt: -1 });
+    if (!issues) {
+      return res.status(404).json({ message: "No issues found for this category" });
+    } 
+    res.status(200).json({ issuesCount: issues.length });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  } 
+}
