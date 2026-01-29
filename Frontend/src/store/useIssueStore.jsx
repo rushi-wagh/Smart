@@ -107,4 +107,12 @@ export const useIssueStore = create((set, get) => ({
       set({ adminStats: data });
     } catch {}
   },
+  categoryHeatmap: [],
+
+  fetchCategoryHeatmap: async () => {
+    try {
+      const { data } = await api.get("/api/v1/issue/heatmap");
+      set({ categoryHeatmap: data.heatmap || [] });
+    } catch {}
+  },
 }));

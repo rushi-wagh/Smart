@@ -144,19 +144,21 @@ export const deleteIssue = async (req, res) => {
 };
 
 
-export const getIssueByCategoryCount = async (req, res) => {
+export const getCategoryHeatmap = async (req, res) => {
   try {
-    const { category } = req.params;  
-    if (!category) {  
-      return res.status(400).json({ message: "Category is required" });
-    } 
-    const issues = await Issue.find({ category: category }).sort({ createdAt: -1 });
-    if (!issues) {
-      return res.status(404).json({ message: "No issues found for this category" });
-    } 
-    res.status(200).json({ issuesCount: issues.length });
+    const data = await Issue.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.status(200).json({ heatmap: data });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal Server Error" });
-  } 
-}
+    console.error(error);
+    res.status(500).json({ message: "Failed to load heatmap data" });
+  }
+};

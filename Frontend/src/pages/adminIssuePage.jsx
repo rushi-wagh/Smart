@@ -11,8 +11,14 @@ const statusColor = {
 };
 
 const AdminIssues = () => {
-  const { fetchAllIssues, updateStatus, allIssues = [], loading } =
-    useIssueStore();
+  const {
+    fetchAllIssues,
+    updateStatus,
+    allIssues = [],
+    loading,
+    fetchCategoryHeatmap,
+    categoryHeatmap = [],
+  } = useIssueStore();
 
   const [filters, setFilters] = useState({
     hostel: "",
@@ -23,6 +29,10 @@ const AdminIssues = () => {
   useEffect(() => {
     fetchAllIssues(filters);
   }, [filters]);
+
+  useEffect(() => {
+    fetchCategoryHeatmap();
+  }, []);
 
   const total = allIssues.length;
   const open = allIssues.filter(i => i.status === "OPEN").length;
@@ -35,20 +45,55 @@ const AdminIssues = () => {
       <div className="min-h-screen bg-linear-to-br from-indigo-50 via-sky-50 to-emerald-50 px-4 py-10">
         <div className="max-w-7xl mx-auto">
 
+          {/* Header */}
           <h1 className="text-3xl font-bold text-slate-800 mb-1">
             Admin Dashboard
           </h1>
-
           <p className="text-sm text-slate-500 mb-6">
             Live hostel complaint analytics & management
           </p>
 
+          {/* Stats */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
             <StatCard title="Total Issues" value={total} color="indigo" />
             <StatCard title="Open Issues" value={open} color="amber" />
             <StatCard title="Resolved Issues" value={resolved} color="emerald" />
           </div>
 
+          {/* Heatmap */}
+          <div className="mb-12">
+            <h2 className="text-lg font-semibold text-slate-800 mb-3">
+              Issue Category Heatmap
+            </h2>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {categoryHeatmap.map((item) => (
+                <div
+                  key={item._id}
+                  className="rounded-2xl p-4 bg-white/70 backdrop-blur-xl border border-white/40 shadow-md hover:scale-[1.03] transition"
+                >
+                  <p className="text-xs text-slate-500 mb-1">
+                    {item._id}
+                  </p>
+
+                  <h3 className="text-2xl font-bold text-indigo-600">
+                    {item.count}
+                  </h3>
+
+                  <div className="mt-3 h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-500 rounded-full transition-all"
+                      style={{
+                        width: `${Math.min((item.count / total) * 100, 100)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Filters */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <input
               placeholder="Filter by Hostel"
@@ -90,11 +135,12 @@ const AdminIssues = () => {
             </div>
           )}
 
+          {/* Issues List */}
           <div className="space-y-4">
             {allIssues.map((i) => (
               <div
                 key={i._id}
-                className="bg-white/70 backdrop-blur-xl p-5 rounded-2xl shadow-md border border-white/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="bg-white/70 backdrop-blur-xl p-5 rounded-2xl shadow-md border border-white/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-lg transition"
               >
                 <div>
                   <h3 className="font-semibold text-slate-800">
@@ -125,7 +171,7 @@ const AdminIssues = () => {
 
                     {i.emergency && (
                       <span className="px-3 py-1 rounded-full bg-red-600 text-white">
-                        🚨 Emergency
+                         Emergency
                       </span>
                     )}
                   </div>
@@ -156,7 +202,7 @@ const AdminIssues = () => {
 export default AdminIssues;
 
 const StatCard = ({ title, value, color }) => (
-  <div className="rounded-2xl p-5 bg-white/70 backdrop-blur-xl border border-white/40 shadow-md">
+  <div className="rounded-2xl p-5 bg-white/70 backdrop-blur-xl border border-white/40 shadow-md hover:scale-[1.02] transition">
     <p className="text-xs text-slate-500">{title}</p>
     <h2 className={`text-2xl font-bold text-${color}-600`}>
       {value}

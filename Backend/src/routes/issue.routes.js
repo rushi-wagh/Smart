@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteIssue, getAllIssues, getIssueByCategoryCount, myIssues, postIssue, updateIssueStatus } from "../controllers/issue.controllers.js";
+import { deleteIssue, getAllIssues, getCategoryHeatmap, myIssues, postIssue, updateIssueStatus } from "../controllers/issue.controllers.js";
 import {isLoggedIn} from "../middleware/auth.middleware.js"
 import upload from "../utils/multer.js"
 
@@ -10,6 +10,8 @@ router.get('/my-issues',isLoggedIn,myIssues)
 router.patch('/update-status/:issueId',isLoggedIn,updateIssueStatus)
 router.get('/all-issues',isLoggedIn,getAllIssues)
 router.delete('/delete/:issueId',isLoggedIn,deleteIssue)
-router.get('/issue/:category',isLoggedIn,getIssueByCategoryCount)
+router.get("/heatmap", isLoggedIn, getCategoryHeatmap);
+
+
 
 export default router;
