@@ -152,7 +152,7 @@ const AdminIssues = () => {
                         </span>
                       ) : (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
-                          No Similar Issues
+                          No Similar Issu
                         </span>
                       )}
 

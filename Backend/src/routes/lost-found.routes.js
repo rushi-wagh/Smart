@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { approveClaim, claimItem, createFoundItem, createLostItem, getLostFoundItemById, getLostFoundItems, rejectClaim } from '../controllers/lost-found.controllers.js';
+import { approveClaim, claimItem, createFoundItem, createLostItem, getLostFoundItemById, getLostFoundItems, getLostItemMatches, rejectClaim } from '../controllers/lost-found.controllers.js';
 import upload from '../utils/multer.js';
 import { isAllowed, isLoggedIn } from '../middleware/auth.middleware.js';
 const router = express.Router();
@@ -11,6 +11,7 @@ router.get('/',isLoggedIn, getLostFoundItems);
 router.post('/claim/:id',isLoggedIn,upload.single('proof'), claimItem);
 router.post('/claim/approve/:id',isLoggedIn,isAllowed("admin"), approveClaim);
 router.post('/claim/reject/:id',isLoggedIn,isAllowed("admin"), rejectClaim);
+router.get("/match/:lostId",isLoggedIn,getLostItemMatches)
 router.get("/:id", isLoggedIn, getLostFoundItemById);
 
 

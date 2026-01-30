@@ -45,10 +45,10 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-md shadow-indigo-500/40">
-              AI
+              RX
             </div>
             <span className="font-semibold text-lg text-slate-900">
-              SmartHostel AI
+              ResolveX
             </span>
           </Link>
 

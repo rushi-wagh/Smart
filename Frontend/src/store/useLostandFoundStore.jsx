@@ -48,7 +48,8 @@ export const useLostFoundStore = create((set, get) => ({
       set({ loading: false });
       return {
         success: false,
-        message: error?.response?.data?.message || "Failed to report found item",
+        message:
+          error?.response?.data?.message || "Failed to report found item",
       };
     }
   },
@@ -80,7 +81,7 @@ export const useLostFoundStore = create((set, get) => ({
       const { data } = await api.post(
         `/api/v1/lost-found/claim/${id}`,
         payload,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       set({ claimLoading: false });
@@ -117,6 +118,14 @@ export const useLostFoundStore = create((set, get) => ({
         success: false,
         message: error?.response?.data?.message || "Rejection failed",
       };
+    }
+  },
+  getLostMatches: async (lostId) => {
+    try {
+      const res = await axios.get(`/api/lost-found/match?lostId=${lostId}`);
+      return res.data.matches;
+    } catch (err) {
+      return [];
     }
   },
 

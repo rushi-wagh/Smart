@@ -9,16 +9,34 @@ import useToast from "../hooks/useToast";
 const LostFoundItemDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { fetchItemById, currentItem, loading, claimItem } =
-    useLostFoundStore();
+  const {
+    fetchItemById,
+    currentItem,
+    loading,
+    claimItem,
+    getLostMatches,
+  } = useLostFoundStore();
 
   const { toast, showToast, hideToast } = useToast();
 
   const [proof, setProof] = useState(null);
+  const [matches, setMatches] = useState([]);
+  const [loadingMatches, setLoadingMatches] = useState(false);
 
   useEffect(() => {
     if (id) fetchItemById(id);
   }, [id]);
+
+  useEffect(() => {
+    if (currentItem?.status === "LOST") fetchMatches();
+  }, [currentItem]);
+
+  const fetchMatches = async () => {
+    setLoadingMatches(true);
+    const res = await getLostMatches(id);
+    setMatches(res || []);
+    setLoadingMatches(false);
+  };
 
   const handleClaim = async () => {
     if (!proof) {
@@ -69,7 +87,6 @@ const LostFoundItemDetail = () => {
 
       <div className="min-h-screen bg-slate-50 px-4 py-10">
         <div className="max-w-5xl mx-auto">
-
           <button
             onClick={() => navigate(-1)}
             className="mb-6 text-indigo-600 hover:underline"
@@ -78,7 +95,6 @@ const LostFoundItemDetail = () => {
           </button>
 
           <div className="bg-white rounded-3xl shadow-xl p-6 grid md:grid-cols-2 gap-8">
-
             <img
               src={currentItem.images?.[0] || "/placeholder.jpg"}
               alt={currentItem.title}
@@ -100,14 +116,61 @@ const LostFoundItemDetail = () => {
                 <StatusBadge status={currentItem.status} />
               </div>
 
+              {/* 🔥 SMART MATCH PANEL */}
+              {currentItem.status === "LOST" && (
+                <div className="mt-6 border rounded-2xl p-4 bg-indigo-50/60">
+                  <h3 className="font-semibold text-slate-800 mb-2">
+                    🔍 Possible Matches
+                  </h3>
+
+                  {loadingMatches && (
+                    <p className="text-sm text-slate-500">
+                      Finding matches...
+                    </p>
+                  )}
+
+                  {!loadingMatches && matches.length === 0 && (
+                    <p className="text-sm text-slate-500">
+                      No matching found items yet.
+                    </p>
+                  )}
+
+                  <div className="space-y-2">
+                    {matches.map((m) => (
+                      <div
+                        key={m.item._id}
+                        onClick={() =>
+                          navigate(`/lost-found/${m.item._id}`)
+                        }
+                        className="bg-white border rounded-xl p-3 flex justify-between items-center cursor-pointer hover:shadow transition"
+                      >
+                        <div>
+                          <p className="font-medium text-sm">
+                            {m.item.title}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            📍 {m.item.location}
+                          </p>
+                        </div>
+
+                        <span className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">
+                          {(m.confidence * 100).toFixed(0)}% match
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {currentItem.status === "AVAILABLE" && (
                 <div className="mt-8 space-y-4">
-
                   <label className="block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer hover:border-indigo-400 transition">
                     <input
                       type="file"
                       hidden
-                      onChange={(e) => setProof(e.target.files[0])}
+                      onChange={(e) =>
+                        setProof(e.target.files[0])
+                      }
                     />
                     📄 Upload ownership proof
                   </label>
@@ -118,24 +181,21 @@ const LostFoundItemDetail = () => {
                   >
                     Claim Item
                   </button>
-
                 </div>
               )}
 
               {currentItem.status !== "AVAILABLE" && (
                 <div className="mt-6 text-sm text-slate-500">
-                  This item is already {currentItem.status.toLowerCase()}.
+                  This item is already{" "}
+                  {currentItem.status.toLowerCase()}.
                 </div>
               )}
             </div>
-
           </div>
-
         </div>
       </div>
 
       <Footer />
-
       {toast && <Toast {...toast} onClose={hideToast} />}
     </>
   );
@@ -154,6 +214,7 @@ const StatusBadge = ({ status }) => {
     AVAILABLE: "bg-emerald-100 text-emerald-600",
     CLAIMED: "bg-amber-100 text-amber-600",
     RETURNED: "bg-rose-100 text-rose-600",
+    LOST: "bg-indigo-100 text-indigo-600",
   };
 
   return (

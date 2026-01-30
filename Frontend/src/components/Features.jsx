@@ -1,26 +1,36 @@
 const Features = () => {
-  const items = [
-    {
-      title: "AI Complaint Categorization",
-      desc: "Automatically groups complaints into plumbing, electricity, mess, security, and more.",
-      icon: "✨",
-    },
-    {
-      title: "Smart Priority Detection",
-      desc: "Detects emergencies and high-impact issues instantly for faster escalation.",
-      icon: "📊",
-    },
-    {
-      title: "AI Assistant Chatbot",
-      desc: "Conversational interface for students to raise and track complaints.",
-      icon: "💬",
-    },
-    {
-      title: "Admin Analytics Dashboard",
-      desc: "Live insights into complaint load, SLAs, blocks, and recurring issues.",
-      icon: "📈",
-    },
-  ];
+ const items = [
+  {
+    title: "Smart Duplicate Detection & Auto Merge",
+    desc: "Detects similar complaints in real-time and merges them intelligently to avoid spam, reduce noise, and accelerate resolution.",
+    icon: "⚡",
+  },
+  {
+    title: "AI Category & Priority Detection",
+    desc: "Understands issue descriptions and automatically assigns correct department and urgency level.",
+    icon: "🧠",
+  },
+  {
+    title: "Automatic Staff Assignment",
+    desc: "Routes complaints to the most suitable staff member based on department and live workload.",
+    icon: "🎯",
+  },
+  {
+    title: "Lost & Found Management System",
+    desc: "End-to-end digital workflow for reporting, claiming, verification, and admin approval of lost items.",
+    icon: "🔎",
+  },
+  {
+    title: "Live Admin Analytics Dashboard",
+    desc: "Real-time insights into hostel complaints, emergency tracking, staff workload, and resolution efficiency.",
+    icon: "📊",
+  },
+  {
+    title: "Role-Based Dashboards",
+    desc: "Dedicated dashboards for students, staff, and admins to ensure clarity, transparency, and accountability.",
+    icon: "🛡️",
+  },
+];
 
   return (
     <section className="py-20">
@@ -33,7 +43,8 @@ const Features = () => {
             Everything you need for smart hostel issue management
           </h2>
           <p className="text-slate-600">
-            Purpose-built for student complaints, warden oversight, and admin analytics.
+            Purpose-built for student complaints, warden oversight, and admin
+            analytics.
           </p>
         </div>
 

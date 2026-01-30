@@ -11,7 +11,7 @@ const Hero = () => {
               AI-Powered · Built for Hostels
             </span>
             <span className="text-sm text-slate-500 ml-3">
-              Hackathon-ready demo UI
+              Smart Hostel Issue Resolution
             </span>
           </div>
 
@@ -38,7 +38,7 @@ const Hero = () => {
             <div className="bg-white rounded-xl p-4 shadow min-w-40">
               <div className="text-sm text-slate-500">Avg. resolution</div>
               <div className="text-xl font-semibold text-slate-900">
-                3.2x faster
+                 faster than traditional systems
               </div>
             </div>
 

@@ -16,10 +16,15 @@ const categories = [
 
 const LostFoundDashboard = () => {
   const navigate = useNavigate();
-  const { items, fetchItems, loading } = useLostFoundStore();
+  const { items, fetchItems, loading, getLostMatches } =
+    useLostFoundStore();
 
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
+
+  // 🔥 Smart match states
+  const [matches, setMatches] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -38,55 +43,63 @@ const LostFoundDashboard = () => {
     });
   }, [items, activeCategory, search]);
 
+  const fetchMatches = async (lostId) => {
+    const res = await getLostMatches(lostId);
+    setMatches(res);
+    setShowModal(true);
+  };
+
   return (
     <>
       <div className="min-h-screen bg-slate-50 pb-24">
-        
-          <Navbar />
+        <Navbar />
 
-          <div className="bg-white py-3 shadow-sm sticky top-0 z-40 pl-12 mx-auto">
-            <div className="mt-3 flex gap-2">
-              <div className="flex-1 flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-xl">
-                <Search className="w-4 h-4 text-slate-400" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search items"
-                  className="bg-transparent outline-none text-sm w-full"
-                />
-              </div>
-
-              <button className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                <SlidersHorizontal className="w-5 h-5 text-slate-500" />
-              </button>
+        <div className="bg-white py-3 shadow-sm sticky top-0 z-40 pl-12 mx-auto">
+          <div className="mt-3 flex gap-2">
+            <div className="flex-1 flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-xl">
+              <Search className="w-4 h-4 text-slate-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search items"
+                className="bg-transparent outline-none text-sm w-full"
+              />
             </div>
+
+            <button className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+              <SlidersHorizontal className="w-5 h-5 text-slate-500" />
+            </button>
           </div>
+        </div>
 
-          <div className="flex gap-3 px-4 py-4 overflow-x-auto">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition
-                ${
-                  activeCategory === cat
-                    ? "bg-emerald-500 text-white"
-                    : "bg-white text-slate-600 border"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+        <div className="flex gap-3 px-4 py-4 overflow-x-auto">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition
+              ${
+                activeCategory === cat
+                  ? "bg-emerald-500 text-white"
+                  : "bg-white text-slate-600 border"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-          {loading && <p className="text-center text-slate-500">Loading...</p>}
+        {loading && <p className="text-center text-slate-500">Loading...</p>}
 
-          <div className="grid grid-cols-2 gap-4 px-4">
-            {filteredItems.map((item) => (
+        <div className="grid grid-cols-2 gap-4 px-4">
+          {filteredItems.map((item) => (
+            <div
+              key={item._id}
+              className="bg-white rounded-2xl shadow-sm overflow-hidden"
+            >
               <div
-                key={item._id}
                 onClick={() => navigate(`/lost-found/${item._id}`)}
-                className="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer"
+                className="cursor-pointer"
               >
                 <div className="relative">
                   <img
@@ -118,27 +131,85 @@ const LostFoundDashboard = () => {
                     {item.title}
                   </h3>
 
-                  <p className="text-xs text-slate-500">📍 {item.location}</p>
+                  <p className="text-xs text-slate-500">
+                    📍 {item.location}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {!loading && filteredItems.length === 0 && (
-            <p className="text-center text-slate-500 mt-16">No items found</p>
-          )}
-
-          <button
-            onClick={() => navigate("/lost-found/report")}
-            className="fixed bottom-6 right-6 flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-xl"
-          >
-            <Plus className="w-5 h-5" />
-            Report Item
-          </button>
+              {/* 🔥 SMART MATCH BUTTON (only for LOST items) */}
+              {item.status === "LOST" && (
+                <button
+                  onClick={() => fetchMatches(item._id)}
+                  className="w-full text-xs py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition font-medium"
+                >
+                  🔍 Find Matches
+                </button>
+              )}
+            </div>
+          ))}
         </div>
 
-        <Footer />
-   
+        {!loading && filteredItems.length === 0 && (
+          <p className="text-center text-slate-500 mt-16">
+            No items found
+          </p>
+        )}
+
+        <button
+          onClick={() => navigate("/lost-found/report")}
+          className="fixed bottom-6 right-6 flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-xl"
+        >
+          <Plus className="w-5 h-5" />
+          Report Item
+        </button>
+      </div>
+
+      {/* 🔥 MATCH MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur flex justify-center items-center z-50">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-xl">
+            <h3 className="text-lg font-semibold mb-4">
+              🔍 Possible Matches
+            </h3>
+
+            {matches.length === 0 && (
+              <p className="text-sm text-slate-500">
+                No matching found items yet.
+              </p>
+            )}
+
+            <div className="space-y-3">
+              {matches.map((m) => (
+                <div
+                  key={m.item._id}
+                  className="border rounded-xl p-3 flex justify-between items-center"
+                >
+                  <div>
+                    <p className="font-medium">{m.item.title}</p>
+                    <p className="text-xs text-slate-500">
+                      📍 {m.item.location}
+                    </p>
+                  </div>
+
+                  <span className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">
+                    {(m.confidence * 100).toFixed(0)}% match
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowModal(false)}
+              className="mt-5 w-full h-11 rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      <Footer />
     </>
   );
 };

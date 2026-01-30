@@ -1,7 +1,8 @@
+import { mongo } from "mongoose";
 import LostFound from "../models/lost-found.models.js";
 import User from "../models/user.model.js";
 import { uploadImage } from "../utils/cloudinary.js";
-
+import { matchLostItem } from "../utils/lostFoundMatcher.js";
 
 export const createLostItem = async (req, res) => {
   try {
@@ -47,10 +48,10 @@ export const createLostItem = async (req, res) => {
 export const createFoundItem = async (req, res) => {
   try {
     const { title, description, location, date, submittedAt } = req.body;
-    let imageUrls 
-    if(req.file){
-        const respp = await uploadImage(req.file.path);
-        imageUrls = [respp.secure_url];
+    let imageUrls;
+    if (req.file) {
+      const respp = await uploadImage(req.file.path);
+      imageUrls = [respp.secure_url];
     }
 
     const foundItem = await LostFound.create({
@@ -170,7 +171,7 @@ export const matchItem = async (req, res) => {
 
     const matches = candidates.filter((c) => {
       const titleMatch = keywords.some((w) =>
-        c.title.toLowerCase().includes(w)
+        c.title.toLowerCase().includes(w),
       );
 
       const locationMatch =
@@ -195,8 +196,10 @@ export const matchItem = async (req, res) => {
 };
 export const getLostFoundItemById = async (req, res) => {
   try {
-    const item = await LostFound.findById(req.params.id)
-      .populate("reportedBy", "name email");
+    const item = await LostFound.findById(req.params.id).populate(
+      "reportedBy",
+      "name email",
+    );
 
     if (!item) {
       return res.status(404).json({
@@ -217,7 +220,6 @@ export const getLostFoundItemById = async (req, res) => {
     });
   }
 };
-
 
 export const rejectClaim = async (req, res) => {
   try {
@@ -278,7 +280,6 @@ export const approveClaim = async (req, res) => {
 
     await item.save();
 
-    // Trust Score Update
     await User.findByIdAndUpdate(item.createdBy, {
       $inc: { trustScore: 10 },
     });
@@ -298,5 +299,38 @@ export const approveClaim = async (req, res) => {
       message: "Approval failed",
       error: error.message,
     });
+  }
+};
+
+export const getLostItemMatches = async (req, res) => {
+  try {
+    const { lostId } = req.params;
+    const Id = mongoose.ObjectId(lostId);
+
+    if (!lostId) {
+      return res.status(400).json({ message: "lostId is required" });
+    }
+
+    const lostItem = await Item.findById(Id);
+
+    if (!lostItem) {
+      return res.status(404).json({ message: "Lost item not found" });
+    }
+
+    console.log("Lost Item:", lostItem.title);
+    console.log("Lost Hostel:", lostItem.hostel);
+    console.log("Lost Block:", lostItem.block);
+
+    const matches = await matchLostItem(lostItem);
+
+    console.log("MATCHES FOUND:", matches.length);
+
+    return res.status(200).json({
+      success: true,
+      matches,
+    });
+  } catch (error) {
+    console.error("match error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
