@@ -12,7 +12,7 @@ import announcementRoutes from "./routes/announcement.routes.js";
 import issueRoutes from "./routes/issue.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
 import staffRoutes from "./routes/staff.routes.js"; 
-
+import communityRoutes from "./routes/community.routes.js";
 dotenv.config();
 
 const app= express();
@@ -33,7 +33,7 @@ app.use("/api/v1/announcement", announcementRoutes);
 app.use("/api/v1/issue", issueRoutes);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/staff",staffRoutes);
-
+app.use("/api/v1/community", communityRoutes);
 connectDb();
 
 app.listen(PORT,() => {

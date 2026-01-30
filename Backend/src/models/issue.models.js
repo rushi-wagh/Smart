@@ -7,9 +7,10 @@ const issueSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    issueType:{
+
+    issueType: {
       type: String,
-      enum: ["Public","Private"],
+      enum: ["Public", "Private"],
       default: "Public",
     },
 
@@ -21,7 +22,15 @@ const issueSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      enum: ["Electricity", "Plumbing", "Cleaning", "Security", "Internet","Mess", "Other"],
+      enum: [
+        "Electricity",
+        "Plumbing",
+        "Cleaning",
+        "Security",
+        "Internet",
+        "Mess",
+        "Other",
+      ],
       default: "Other",
     },
 
@@ -122,6 +131,33 @@ const issueSchema = new mongoose.Schema(
     resolvedAt: {
       type: Date,
     },
+
+    duplicateCount: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+
+    mergedInto: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Issue",
+      default: null,
+      index: true,
+    },
+
+    reporters: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        index: true,
+      },
+    ],
+
+    embedding: {
+      type: [Number],
+      default: [],
+      select: false,
+    },
   },
   { timestamps: true }
 );
@@ -129,10 +165,31 @@ const issueSchema = new mongoose.Schema(
 issueSchema.index({
   hostel: 1,
   block: 1,
+  category: 1,
+  status: 1,
   priority: -1,
   emergency: -1,
   createdAt: -1,
 });
+
+issueSchema.pre("validate", function () {
+  if (this.category)
+    this.category =
+      this.category.charAt(0).toUpperCase() +
+      this.category.slice(1).toLowerCase();
+
+  if (this.priority)
+    this.priority =
+      this.priority.charAt(0).toUpperCase() +
+      this.priority.slice(1).toLowerCase();
+
+  if (this.aiPriority)
+    this.aiPriority =
+      this.aiPriority.charAt(0).toUpperCase() +
+      this.aiPriority.slice(1).toLowerCase();
+});
+
+
 
 const Issue = mongoose.model("Issue", issueSchema);
 

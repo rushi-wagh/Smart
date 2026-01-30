@@ -16,6 +16,7 @@ import ReportIssue from './pages/issueReportPage';
 import MyIssues from './pages/myIssuePage';
 import AdminIssues from './pages/adminIssuePage';
 import StaffDashboard from './pages/staffPage';
+import IssueCommunity from "./pages/IsssueCommunity";
 
 const App = () => {
   return (
@@ -66,6 +67,12 @@ const App = () => {
       <Route path="/announcements" element={
         <ProtectedRoute>
           <Announcements />
+        </ProtectedRoute>
+      } />
+
+        <Route path="/community" element={
+        <ProtectedRoute>
+          <IssueCommunity />
         </ProtectedRoute>
       } />
 

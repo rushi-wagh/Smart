@@ -24,6 +24,7 @@ const ReportIssue = () => {
   const { createIssue, detectCategory, suggestedCategory, loading } =
     useIssueStore();
   const { toast, showToast, hideToast } = useToast();
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [timer, setTimer] = useState(null);
   const [detecting, setDetecting] = useState(false);
@@ -71,10 +72,15 @@ const ReportIssue = () => {
     }
   }, [suggestedCategory]);
 
+  useEffect(() => {
+    return () => imagePreview && URL.revokeObjectURL(imagePreview);
+  }, [imagePreview]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = new FormData();
+    console.log("Submitting form:", payload); // Debug log
     Object.entries(form).forEach(([k, v]) => {
       if (v !== null && v !== "") payload.append(k, v);
     });
@@ -82,8 +88,16 @@ const ReportIssue = () => {
     const res = await createIssue(payload);
 
     if (res.success) {
-      showToast("success", res.message);
-      setTimeout(() => navigate("/my-issues"), 900);
+      if (res.merged) {
+        showToast(
+          "info",
+          `Similar issue found! Your complaint auto-merged.Similiar Reports: ${res.duplicateCount}`,
+        );
+        setTimeout(() => navigate("/my-issues"), 3200);
+      } else {
+        showToast("success", res.message);
+        setTimeout(() => navigate("/my-issues"), 900);
+      }
     } else {
       showToast("error", res.message);
     }
@@ -95,7 +109,6 @@ const ReportIssue = () => {
 
       <div className="min-h-screen bg-linear-to-br from-indigo-50 via-sky-50 to-emerald-50 flex justify-center px-4 py-14">
         <div className="w-full max-w-xl bg-white/70 backdrop-blur-xl rounded-3xl p-10 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.35)] border border-white/50">
-
           <h1 className="text-2xl font-semibold text-center text-slate-900">
             Report an Issue
           </h1>
@@ -104,7 +117,6 @@ const ReportIssue = () => {
           </p>
 
           <form onSubmit={handleSubmit} className="mt-10 space-y-6">
-
             <input
               name="title"
               placeholder="Issue title"
@@ -126,12 +138,12 @@ const ReportIssue = () => {
               <div className="mt-1 text-xs flex items-center gap-2 min-h-[18px]">
                 {detecting && (
                   <span className="text-indigo-600 animate-pulse">
-                    🤖 Detecting category...
+                    Auto- Detecting category...
                   </span>
                 )}
                 {!detecting && suggestedCategory && (
                   <span className="text-emerald-600">
-                    ✨ Suggested: {form.category}
+                    ✨ Detected Category: {form.category}
                   </span>
                 )}
               </div>
@@ -194,16 +206,57 @@ const ReportIssue = () => {
               </p>
             </div>
 
-            <label className="border-2 border-dashed rounded-2xl h-36 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-indigo-400 hover:text-indigo-500 transition bg-white/40">
-              <input
-                type="file"
-                className="hidden"
-                onChange={(e) =>
-                  setForm({ ...form, image: e.target.files[0] })
-                }
-              />
-              📸 Upload image
-            </label>
+            {/* Upload Box (only show if no image selected) */}
+            {!imagePreview && (
+              <label className="border-2 border-dashed rounded-2xl h-36 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-indigo-400 hover:text-indigo-500 transition bg-white/40">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    setForm({ ...form, image: file });
+                    setImagePreview(URL.createObjectURL(file));
+                  }}
+                />
+                <span className="text-3xl">📸</span>
+                <span className="text-sm mt-1">Upload issue image</span>
+                <span className="text-[11px] text-slate-400">
+                  Only 1 image allowed
+                </span>
+              </label>
+            )}
+
+            {/* Preview Card */}
+            {imagePreview && (
+              <div className="relative mt-3 rounded-2xl overflow-hidden shadow-lg border bg-white group">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+
+                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition" />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForm({ ...form, image: null });
+                    setImagePreview(null);
+                  }}
+                  className="absolute top-3 right-3 bg-black/70 hover:bg-black/90 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition"
+                  title="Remove image"
+                >
+                  ✕
+                </button>
+
+                <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[11px] px-2 py-1 rounded-full">
+                  Image selected
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-2 text-xs">
               <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600">
@@ -224,7 +277,13 @@ const ReportIssue = () => {
             >
               {loading ? "Submitting..." : "Submit Issue"}
             </button>
-
+            <p className="text-[11px] text-center text-slate-500 mt-1">
+              Powered by{" "}
+              <span className="font-semibold text-indigo-600">
+                Smart Detection
+              </span>{" "}
+              to prevent duplicate complaints ⚡
+            </p>
           </form>
         </div>
       </div>
