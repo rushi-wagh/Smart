@@ -123,11 +123,23 @@ const MyIssues = () => {
                       {issue?.title || "Untitled Issue"}
                     </h3>
 
-                    {issue?.priority === "Emergency" && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-600 text-white">
-                        🚨 Emergency
-                      </span>
-                    )}
+                    <div className="flex flex-col items-end gap-0.5">
+                      {issue?.duplicateCount > 0 ? (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">
+                           {issue.duplicateCount} similar Issues
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                        No similar Issues
+                        </span>
+                      )}
+
+                      {issue?.priority === "Emergency" && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-600 text-white">
+                          🚨 Emergency
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-xs text-slate-500 mt-1 line-clamp-2">

@@ -35,8 +35,8 @@ const AdminIssues = () => {
   }, []);
 
   const total = allIssues.length;
-  const open = allIssues.filter(i => i.status === "OPEN").length;
-  const resolved = allIssues.filter(i => i.status === "RESOLVED").length;
+  const open = allIssues.filter((i) => i.status === "OPEN").length;
+  const resolved = allIssues.filter((i) => i.status === "RESOLVED").length;
 
   return (
     <>
@@ -44,8 +44,6 @@ const AdminIssues = () => {
 
       <div className="min-h-screen bg-linear-to-br from-indigo-50 via-sky-50 to-emerald-50 px-4 py-10">
         <div className="max-w-7xl mx-auto">
-
-          {/* Header */}
           <h1 className="text-3xl font-bold text-slate-800 mb-1">
             Admin Dashboard
           </h1>
@@ -53,14 +51,12 @@ const AdminIssues = () => {
             Live hostel complaint analytics & management
           </p>
 
-          {/* Stats */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
             <StatCard title="Total Issues" value={total} color="indigo" />
             <StatCard title="Open Issues" value={open} color="amber" />
             <StatCard title="Resolved Issues" value={resolved} color="emerald" />
           </div>
 
-          {/* Heatmap */}
           <div className="mb-12">
             <h2 className="text-lg font-semibold text-slate-800 mb-3">
               Issue Category Heatmap
@@ -84,7 +80,10 @@ const AdminIssues = () => {
                     <div
                       className="h-full bg-indigo-500 rounded-full transition-all"
                       style={{
-                        width: `${Math.min((item.count / total) * 100, 100)}%`,
+                        width: `${Math.min(
+                          (item.count / total) * 100,
+                          100
+                        )}%`,
                       }}
                     />
                   </div>
@@ -93,7 +92,6 @@ const AdminIssues = () => {
             </div>
           </div>
 
-          {/* Filters */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <input
               placeholder="Filter by Hostel"
@@ -135,7 +133,6 @@ const AdminIssues = () => {
             </div>
           )}
 
-          {/* Issues List */}
           <div className="space-y-4">
             {allIssues.map((i) => (
               <div
@@ -143,16 +140,38 @@ const AdminIssues = () => {
                 className="bg-white/70 backdrop-blur-xl p-5 rounded-2xl shadow-md border border-white/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-lg transition"
               >
                 <div>
-                  <h3 className="font-semibold text-slate-800">
-                    {i.title}
-                  </h3>
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold text-slate-800">
+                      {i.title}
+                    </h3>
+
+                    <div className="flex flex-col items-end gap-0.5">
+                      {i.duplicateCount > 0 ? (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">
+                           {i.duplicateCount} Similiar Issues
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                          No Similar Issues
+                        </span>
+                      )}
+
+                      {i.priority === "Emergency" && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-600 text-white">
+                          🚨 Emergency
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
                   <p className="text-xs text-slate-500 mt-1">
                     {i.hostel} • Block {i.block} • Room {i.roomNumber}
                   </p>
 
                   <div className="flex flex-wrap gap-2 mt-3 text-xs">
-                    <span className={`px-3 py-1 rounded-full font-medium ${statusColor[i.status]}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full font-medium ${statusColor[i.status]}`}
+                    >
                       {i.status}
                     </span>
 
@@ -162,18 +181,14 @@ const AdminIssues = () => {
 
                     <span
                       className={`px-3 py-1 rounded-full font-medium 
-                        ${i.issueType === "Public"
-                          ? "bg-emerald-100 text-emerald-600"
-                          : "bg-amber-100 text-amber-600"}`}
+                        ${
+                          i.issueType === "Public"
+                            ? "bg-emerald-100 text-emerald-600"
+                            : "bg-amber-100 text-amber-600"
+                        }`}
                     >
                       {i.issueType}
                     </span>
-
-                    {i.emergency && (
-                      <span className="px-3 py-1 rounded-full bg-red-600 text-white">
-                         Emergency
-                      </span>
-                    )}
                   </div>
                 </div>
 
@@ -190,7 +205,6 @@ const AdminIssues = () => {
               </div>
             ))}
           </div>
-
         </div>
       </div>
 
@@ -204,8 +218,6 @@ export default AdminIssues;
 const StatCard = ({ title, value, color }) => (
   <div className="rounded-2xl p-5 bg-white/70 backdrop-blur-xl border border-white/40 shadow-md hover:scale-[1.02] transition">
     <p className="text-xs text-slate-500">{title}</p>
-    <h2 className={`text-2xl font-bold text-${color}-600`}>
-      {value}
-    </h2>
+    <h2 className={`text-2xl font-bold text-${color}-600`}>{value}</h2>
   </div>
 );
