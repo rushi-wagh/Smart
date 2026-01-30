@@ -1,6 +1,6 @@
 # Smart Hostel Issue Management Platform
 
-A full-stack web platform designed to help students and hostel authorities efficiently report, track, and resolve hostel and campus-related issues. The system improves transparency, reduces response time, and provides actionable insights using intelligent automation and analytics.
+A full-stack web platform designed to help students and hostel authorities efficiently report, track, and resolve hostel  issues. The system improves transparency, reduces response time, and provides actionable insights using intelligent automation and analytics.
 
 ---
 
@@ -14,7 +14,7 @@ A full-stack web platform designed to help students and hostel authorities effic
 - Hostel announcements and notifications
 - Lost & Found management system
 - Real-time analytics dashboard
-- Community interaction through comments and updates
+
 
 ---
 
@@ -45,7 +45,8 @@ Frontend → Backend API → Intelligence Engine → Workflow Manager → Analyt
 - JWT Authentication
 
 ### Intelligence & Logic
-- NLP similarity matching  
+- NLP similarity matching
+- Simple.js 
 - Weighted priority scoring  
 - Rule-based automation  
 
