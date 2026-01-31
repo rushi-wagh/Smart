@@ -20,7 +20,6 @@ const ProfileView = () => {
 
       <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-linear-to-br from-indigo-100 via-sky-100 to-emerald-100 px-4 py-8">
         <div className="w-full max-w-xl bg-white/70 backdrop-blur-xl rounded-3xl p-8 shadow-[0_20px_50px_-15px_rgba(79,70,229,0.18)] border border-white/40">
-
           <div className="text-center mb-6">
             <h1 className="text-2xl font-semibold text-slate-900">
               My Profile
@@ -29,14 +28,31 @@ const ProfileView = () => {
               View your personal and hostel information
             </p>
           </div>
+          {/* Profile Completion Notice */}
+          <div className="mb-6 rounded-2xl bg-gradient-to-r from-indigo-500 to-sky-500 p-[1px]">
+            <div className="rounded-2xl bg-white px-4 py-3 flex items-start gap-3">
+              <div className="h-9 w-9 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 text-lg">
+                ⚡
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-800">
+                  Complete your profile
+                </p>
+                <p className="text-xs text-slate-500">
+                  Finish setting up your profile to access all features smoothly
+                  and get the best experience.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="bg-white rounded-xl p-4 flex items-center gap-4 shadow-sm mb-6">
-            {/* <div
+            <div
               className="radial-progress text-indigo-600"
               style={{ "--value": completion }}
             >
               {completion}%
-            </div> */}
+            </div>
             <div>
               <p className="font-semibold">Profile Completion</p>
               <p className="text-sm text-slate-500">
@@ -46,7 +62,6 @@ const ProfileView = () => {
           </div>
 
           <div className="space-y-6">
-
             <section>
               <p className="text-xs font-semibold tracking-widest text-slate-500 mb-3">
                 PERSONAL INFORMATION
@@ -70,7 +85,10 @@ const ProfileView = () => {
               </p>
 
               <div className="grid gap-4">
-                <Info label="Hostel Unique ID" value={profile.hostelId || "—"} />
+                <Info
+                  label="Hostel Unique ID"
+                  value={profile.hostelId || "—"}
+                />
                 <Info label="Hostel Name" value={profile.hostel || "—"} />
 
                 <div className="grid grid-cols-2 gap-4">
@@ -88,7 +106,6 @@ const ProfileView = () => {
                 Edit Profile →
               </button>
             </div>
-
           </div>
         </div>
       </div>

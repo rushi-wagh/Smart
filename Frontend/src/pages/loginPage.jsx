@@ -31,8 +31,8 @@ const Login = () => {
     }
     const profileRes = await getProfile();
     
-
-    if (profileRes?.completion < 80) {
+    console.log("profile",profileRes);
+    if (profileRes?.completion < 85) {
       showToast("info", "Please complete your profile first");
       setTimeout(() => navigate("/update-profile"), 500);
       return;
