@@ -1,3 +1,6 @@
+import { create } from "zustand";
+import api from "../utils/api.js";
+
 export const useAuthStore = create(
   persist(
     (set) => ({
