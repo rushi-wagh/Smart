@@ -72,22 +72,7 @@ const LostFoundDashboard = () => {
           </div>
         </div>
 
-        <div className="flex gap-3 px-4 py-4 overflow-x-auto">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition
-              ${
-                activeCategory === cat
-                  ? "bg-emerald-500 text-white"
-                  : "bg-white text-slate-600 border"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        
 
         {loading && <p className="text-center text-slate-500">Loading...</p>}
 

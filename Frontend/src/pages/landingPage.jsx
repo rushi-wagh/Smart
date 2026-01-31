@@ -1,13 +1,16 @@
+import { use } from "react";
 import Features from "../components/Features";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import Navbar from "../components/NavBar";
 import HowItWorks from "../components/Works";
 import { Sparkles } from "lucide-react";
+import { useAuthStore } from "../store/useAuthStore";
 
 const Landing = () => {
+  const {user} = useAuthStore();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-sky-50 to-emerald-50">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-sky-50 to-emerald-50">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 pt-24 pb-16 space-y-24">
@@ -19,8 +22,8 @@ const Landing = () => {
         <Features />
 
         <HowItWorks />
-
-        <CTA />
+        
+        {!user && <CTA />}
 
       </main>
 
