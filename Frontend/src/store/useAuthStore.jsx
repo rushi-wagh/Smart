@@ -1,12 +1,7 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import api from "../utils/api";
-
 export const useAuthStore = create(
   persist(
     (set) => ({
       user: null,
-      token: null,
       isAuthenticated: false,
       loading: false,
 
@@ -14,11 +9,13 @@ export const useAuthStore = create(
         try {
           set({ loading: true });
 
-          const { data } = await api.post("/api/v1/auth/login", credentials);
+          const { data } = await api.post(
+            "/api/v1/auth/login",
+            credentials
+          );
 
           set({
             user: data.user,
-            token: data.token,
             isAuthenticated: true,
             loading: false,
           });
@@ -37,7 +34,10 @@ export const useAuthStore = create(
         try {
           set({ loading: true });
 
-          const { data } = await api.post("/api/v1/auth/register", payload);
+          const { data } = await api.post(
+            "/api/v1/auth/register",
+            payload
+          );
 
           set({ loading: false });
 
@@ -51,10 +51,10 @@ export const useAuthStore = create(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        await api.post("/api/v1/auth/logout"); // 🔥 call backend
         set({
           user: null,
-          token: null,
           isAuthenticated: false,
         });
       },
@@ -66,7 +66,7 @@ export const useAuthStore = create(
           const { data } = await api.get("/api/v1/auth/me");
 
           set({
-            user: data.user,
+            user: data,
             isAuthenticated: true,
             loading: false,
           });
@@ -75,7 +75,6 @@ export const useAuthStore = create(
         } catch (error) {
           set({
             user: null,
-            token: null,
             isAuthenticated: false,
             loading: false,
           });
@@ -93,7 +92,6 @@ export const useAuthStore = create(
       name: "auth-storage",
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
     }
